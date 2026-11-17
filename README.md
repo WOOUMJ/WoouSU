@@ -37,10 +37,6 @@ A **KernelSU-based, kernel-level root solution for Android**, with optional SUSF
 - A stock `boot` / `init_boot` image matching your **current** firmware build (never mix versions).
 - A backup of the stock image so you can roll back.
 
-### Install the manager
-
-Download the APK from Releases, or build it yourself (see [Building](#building)). The manager package name is `com.woousu.wo`. It is **not** compatible with the upstream KernelSU manager or managers from other forks — install only one.
-
 ### Option A — Patch the stock boot image (works on any KernelSU-supported device)
 
 1. Open the manager, choose **Install**.
@@ -63,7 +59,7 @@ Download the APK from Releases, or build it yourself (see [Building](#building))
 
 ### Option B — Flash a kernel with built-in WoouSU (and optionally SUSFS)
 
-Build a kernel with `CONFIG_KSU=y` (see [Building](#building)) or download a prebuilt kernel from Releases. Prebuilt images are device- and firmware-specific; the OnePlus 10T / Ace Pro (SM8475, 5.10) SUSFS kernel is one example, not the only supported device.
+Build a kernel with `CONFIG_KSU=y` (see [Building](#building)) or download a prebuilt kernel from Releases.
 
 ```bash
 fastboot flash boot WoouSU-<device>-<version>.img
