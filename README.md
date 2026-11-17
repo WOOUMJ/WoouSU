@@ -33,15 +33,13 @@ A **KernelSU-based, kernel-level root solution for Android**, with optional SUSF
 
 ## Installation
 
+The manager can be downloaded as an APK from Releases, or built from source (see [Building](#building)). Its package name is com.woousu.wo; it is not compatible with the upstream KernelSU manager or with managers from other forks, so install only one.
+
 ### Requirements
 
 - Unlocked bootloader.
 - A stock `boot` / `init_boot` image matching your **current** firmware build (never mix versions).
 - A backup of the stock image so you can roll back.
-
-### Install the manager
-
-Download the APK from Releases, or build it yourself (see [Building](#building)). The manager package name is `com.woousu.wo`. It is **not** compatible with the upstream KernelSU manager or managers from other forks — install only one.
 
 ### Option A — Patch the stock boot image (works on any KernelSU-supported device)
 
