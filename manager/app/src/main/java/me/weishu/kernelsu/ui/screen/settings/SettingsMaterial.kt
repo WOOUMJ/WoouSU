@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
@@ -32,6 +33,7 @@ import androidx.compose.material.icons.filled.SystemUpdateAlt
 import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LargeFlexibleTopAppBar
+import androidx.compose.material3.Slider
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -115,6 +117,15 @@ fun SettingPagerMaterial(
                                 checked = uiState.checkModuleUpdate,
                                 onCheckedChange = actions.onSetCheckModuleUpdate
                             )
+                        },
+                        {
+                            SegmentedSwitchItem(
+                                icon = Icons.Filled.Info,
+                                title = stringResource(id = R.string.settings_hide_version_mismatch),
+                                summary = stringResource(id = R.string.settings_hide_version_mismatch_summary),
+                                checked = uiState.hideVersionMismatch,
+                                onCheckedChange = actions.onSetHideVersionMismatch
+                            )
                         }
                     )
                 )
@@ -146,6 +157,53 @@ fun SettingPagerMaterial(
                                 )
                             }
                         )
+                    }
+                }
+            )
+
+            SegmentedColumn(
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 13.dp),
+                content = buildList {
+                    add {
+                        SegmentedListItem(
+                            onClick = actions.onPickBackgroundImage,
+                            headlineContent = { Text(stringResource(id = R.string.settings_background_pick)) },
+                            supportingContent = {
+                                Text(
+                                    if (uiState.backgroundImagePath.isEmpty()) {
+                                        stringResource(id = R.string.settings_background_empty)
+                                    } else {
+                                        uiState.backgroundImagePath.substringAfterLast('/')
+                                    }
+                                )
+                            },
+                            leadingContent = { Icon(Icons.Filled.Palette, stringResource(id = R.string.settings_background_pick)) },
+                            trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null) }
+                        )
+                    }
+                    if (uiState.backgroundImagePath.isNotEmpty()) {
+                        add {
+                            SegmentedListItem(
+                                onClick = actions.onRemoveBackgroundImage,
+                                headlineContent = { Text(stringResource(id = R.string.settings_background_remove)) },
+                                leadingContent = { Icon(Icons.Filled.Delete, stringResource(id = R.string.settings_background_remove)) }
+                            )
+                        }
+                        add {
+                            SegmentedListItem(
+                                headlineContent = { Text(stringResource(id = R.string.settings_background_opacity)) },
+                                supportingContent = {
+                                    Slider(
+                                        value = uiState.backgroundOpacity,
+                                        onValueChange = actions.onSetBackgroundOpacity,
+                                        valueRange = 0.05f..1f,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                },
+                                leadingContent = { Icon(Icons.Filled.DisplaySettings, stringResource(id = R.string.settings_background_opacity)) },
+                                trailingContent = { Text("${(uiState.backgroundOpacity * 100).toInt()}%") }
+                            )
+                        }
                     }
                 }
             )

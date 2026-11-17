@@ -24,6 +24,9 @@ data class HomeUiState(
     val latestVersionInfo: LatestVersionInfo,
     val currentManagerVersionCode: Long,
     val systemInfo: SystemInfo,
+    val hideVersionMismatch: Boolean = false,
+    val backgroundImagePath: String = "",
+    val backgroundOpacity: Float = 0.35f,
 ) {
     val isSELinuxPermissive: Boolean
         get() = systemInfo.selinuxStatus == "Permissive"

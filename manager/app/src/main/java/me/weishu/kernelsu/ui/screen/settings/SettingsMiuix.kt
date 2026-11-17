@@ -50,10 +50,13 @@ import me.weishu.kernelsu.ui.component.uninstalldialog.UninstallDialog
 import me.weishu.kernelsu.ui.theme.LocalEnableBlur
 import me.weishu.kernelsu.ui.util.BlurredBar
 import me.weishu.kernelsu.ui.util.rememberBlurBackdrop
+import top.yukonga.miuix.kmp.basic.BasicComponent
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.Slider
+import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.blur.layerBackdrop
 import top.yukonga.miuix.kmp.preference.ArrowPreference
@@ -142,6 +145,20 @@ fun SettingPagerMiuix(
                                 onCheckedChange = actions.onSetCheckModuleUpdate
                             )
                         }
+                        SwitchPreference(
+                            title = stringResource(id = R.string.settings_hide_version_mismatch),
+                            summary = stringResource(id = R.string.settings_hide_version_mismatch_summary),
+                            startAction = {
+                                Icon(
+                                    Icons.Rounded.Info,
+                                    modifier = Modifier.padding(end = 6.dp),
+                                    contentDescription = stringResource(id = R.string.settings_hide_version_mismatch),
+                                    tint = colorScheme.onBackground
+                                )
+                            },
+                            checked = uiState.hideVersionMismatch,
+                            onCheckedChange = actions.onSetHideVersionMismatch
+                        )
                     }
 
                     Card(
@@ -177,6 +194,68 @@ fun SettingPagerMiuix(
                             },
                             onClick = actions.onOpenTheme
                         )
+                    }
+
+                    Card(
+                        modifier = Modifier
+                            .padding(top = 12.dp)
+                            .fillMaxWidth(),
+                    ) {
+                        ArrowPreference(
+                            title = stringResource(id = R.string.settings_background_pick),
+                            summary = if (uiState.backgroundImagePath.isEmpty()) {
+                                stringResource(id = R.string.settings_background_empty)
+                            } else {
+                                uiState.backgroundImagePath.substringAfterLast('/')
+                            },
+                            startAction = {
+                                Icon(
+                                    Icons.Rounded.Palette,
+                                    modifier = Modifier.padding(end = 6.dp),
+                                    contentDescription = stringResource(id = R.string.settings_background_pick),
+                                    tint = colorScheme.onBackground
+                                )
+                            },
+                            onClick = actions.onPickBackgroundImage
+                        )
+                        if (uiState.backgroundImagePath.isNotEmpty()) {
+                            ArrowPreference(
+                                title = stringResource(id = R.string.settings_background_remove),
+                                startAction = {
+                                    Icon(
+                                        Icons.Rounded.Delete,
+                                        modifier = Modifier.padding(end = 6.dp),
+                                        contentDescription = stringResource(id = R.string.settings_background_remove),
+                                        tint = colorScheme.onBackground
+                                    )
+                                },
+                                onClick = actions.onRemoveBackgroundImage
+                            )
+                            BasicComponent(
+                                title = stringResource(id = R.string.settings_background_opacity),
+                                startAction = {
+                                    Icon(
+                                        Icons.Rounded.DisplaySettings,
+                                        modifier = Modifier.padding(end = 6.dp),
+                                        contentDescription = stringResource(id = R.string.settings_background_opacity),
+                                        tint = colorScheme.onBackground
+                                    )
+                                },
+                                endActions = {
+                                    Text(
+                                        text = "${(uiState.backgroundOpacity * 100).toInt()}%",
+                                        color = colorScheme.onSurfaceVariantActions,
+                                    )
+                                },
+                                bottomAction = {
+                                    Slider(
+                                        value = uiState.backgroundOpacity,
+                                        onValueChange = actions.onSetBackgroundOpacity,
+                                        valueRange = 0.05f..1f,
+                                    )
+                                }
+                            )
+                        }
                     }
 
                     KsuIsValid {

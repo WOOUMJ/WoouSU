@@ -70,6 +70,9 @@ class HomeViewModel(
             isSafeMode = Natives.isSafeMode,
             isLateLoadMode = Natives.isLateLoadMode,
             checkUpdateEnabled = settingsRepo.checkUpdate,
+            hideVersionMismatch = settingsRepo.hideVersionMismatch,
+            backgroundImagePath = settingsRepo.backgroundImagePath,
+            backgroundOpacity = settingsRepo.backgroundOpacity,
             latestVersionInfo = LatestVersionInfo(),
             currentManagerVersionCode = managerVersion.versionCode,
             systemInfo = SystemInfo(

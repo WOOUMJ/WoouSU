@@ -6,12 +6,14 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
@@ -64,6 +66,7 @@ import me.weishu.kernelsu.BuildConfig
 import me.weishu.kernelsu.KernelVersion
 import me.weishu.kernelsu.Natives
 import me.weishu.kernelsu.R
+import me.weishu.kernelsu.ui.component.ManagerBackground
 import me.weishu.kernelsu.ui.component.WarningLevel
 import me.weishu.kernelsu.ui.component.dialog.rememberConfirmDialog
 import me.weishu.kernelsu.ui.component.material.ExpressiveScaffold
@@ -82,10 +85,20 @@ fun HomePagerMaterial(
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
-    ExpressiveScaffold(
-        topBar = { TopBar(scrollBehavior = scrollBehavior) },
-        contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
-    ) { innerPadding ->
+    Box(modifier = Modifier.fillMaxSize()) {
+        ManagerBackground(
+            path = state.backgroundImagePath,
+            opacity = state.backgroundOpacity,
+        )
+        ExpressiveScaffold(
+            topBar = { TopBar(scrollBehavior = scrollBehavior) },
+            containerColor = if (state.backgroundImagePath.isNotEmpty()) {
+                Color.Transparent
+            } else {
+                MaterialTheme.colorScheme.surfaceContainer
+            },
+            contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
+        ) { innerPadding ->
         Column(
             modifier = Modifier
                 .padding(innerPadding)
@@ -117,7 +130,7 @@ fun HomePagerMaterial(
                     )
                 )
             }
-            if (state.showVersionMismatch) {
+            if (state.showVersionMismatch && !state.hideVersionMismatch) {
                 WarningCard(
                     stringResource(
                         id = R.string.home_version_mismatch,
@@ -148,6 +161,7 @@ fun HomePagerMaterial(
                         WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() else 0.dp
                 )
             )
+        }
         }
     }
 }
