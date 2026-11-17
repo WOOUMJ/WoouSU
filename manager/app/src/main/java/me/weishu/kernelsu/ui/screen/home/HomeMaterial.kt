@@ -367,12 +367,12 @@ private fun SupportLinks(
     onOpenUrl: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val learnMoreUrl = "https://gitee.com/wooumj/woousu"
+    val learnMoreUrl = "https://github.com/WOOUMJ/WoouSU"
 
     SegmentedColumn(modifier = modifier.fillMaxWidth()) {
         item {
             SegmentedListItem(
-                onClick = { onOpenUrl("https://gitee.com/wooumj/woousu") },
+                onClick = { onOpenUrl("https://github.com/WOOUMJ/WoouSU") },
                 headlineContent = { Text(stringResource(R.string.home_support_title)) },
                 supportingContent = { Text(stringResource(R.string.home_support_content)) },
                 leadingContent = {

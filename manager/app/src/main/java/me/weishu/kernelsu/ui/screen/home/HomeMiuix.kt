@@ -445,7 +445,7 @@ private fun SupportLinks(
     onOpenUrl: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val learnMoreUrl = "https://gitee.com/wooumj/woousu"
+    val learnMoreUrl = "https://github.com/WOOUMJ/WoouSU"
 
     Card(modifier = modifier) {
         ArrowPreference(
@@ -459,7 +459,7 @@ private fun SupportLinks(
                     tint = colorScheme.onBackground,
                 )
             },
-            onClick = { onOpenUrl("https://gitee.com/wooumj/woousu") },
+            onClick = { onOpenUrl("https://github.com/WOOUMJ/WoouSU") },
         )
         ArrowPreference(
             title = stringResource(R.string.home_learn_kernelsu),
