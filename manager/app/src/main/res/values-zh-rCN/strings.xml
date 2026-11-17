@@ -155,6 +155,12 @@
     <string name="app_profile_affects_following_apps">影响以下应用</string>
     <string name="settings_check_update">检查更新</string>
     <string name="settings_check_update_summary">在应用启动后自动检查是否有最新版</string>
+    <string name="settings_hide_version_mismatch">隐藏版本差异提示</string>
+    <string name="settings_hide_version_mismatch_summary">不再显示管理器版本与镜像版本不一致的警告</string>
+    <string name="settings_background_pick">选择背景图片</string>
+    <string name="settings_background_remove">移除背景图片</string>
+    <string name="settings_background_opacity">背景不透明度</string>
+    <string name="settings_background_empty">未设置背景图片</string>
     <string name="settings_enable_predictive_back">预测性返回手势</string>
     <string name="settings_enable_predictive_back_summary">启用对预测性返回手势的支持</string>
     <string name="settings_enable_swipe_dismiss">横移返回手势</string>

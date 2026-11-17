@@ -1,5 +1,6 @@
 package me.weishu.kernelsu.ui.viewmodel
 
+import android.net.Uri
 import android.system.OsConstants
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
@@ -18,6 +19,7 @@ import me.weishu.kernelsu.data.repository.SettingsRepositoryImpl
 import me.weishu.kernelsu.ksuApp
 import me.weishu.kernelsu.ui.screen.settings.SettingsUiState
 import me.weishu.kernelsu.ui.theme.ColorMode
+import java.io.File
 
 class SettingsViewModel(
     private val repo: SettingsRepository = SettingsRepositoryImpl()
@@ -90,6 +92,9 @@ class SettingsViewModel(
             val uiMode = repo.uiMode
             val autoJailbreak = repo.autoJailbreak
             val useSoftReboot = repo.useSoftReboot
+            val hideVersionMismatch = repo.hideVersionMismatch
+            val backgroundImagePath = repo.backgroundImagePath
+            val backgroundOpacity = repo.backgroundOpacity
             val isLateLoadMode = Natives.isLateLoadMode
 
             _uiState.update {
@@ -129,6 +134,9 @@ class SettingsViewModel(
                     isLkmMode = isLkmMode,
                     autoJailbreak = autoJailbreak,
                     useSoftReboot = useSoftReboot,
+                    hideVersionMismatch = hideVersionMismatch,
+                    backgroundImagePath = backgroundImagePath,
+                    backgroundOpacity = backgroundOpacity,
                     isLateLoadMode = isLateLoadMode,
                 )
             }
@@ -337,6 +345,51 @@ class SettingsViewModel(
     fun setUseSoftReboot(enabled: Boolean) {
         repo.useSoftReboot = enabled
         _uiState.update { it.copy(useSoftReboot = enabled) }
+    }
+
+    fun setHideVersionMismatch(enabled: Boolean) {
+        repo.hideVersionMismatch = enabled
+        _uiState.update { it.copy(hideVersionMismatch = enabled) }
+    }
+
+    fun setBackgroundImage(uri: Uri?) {
+        if (uri == null) return
+        viewModelScope.launch(Dispatchers.IO) {
+            runCatching {
+                val dir = File(ksuApp.filesDir, "background").apply { mkdirs() }
+                val target = File(dir, "manager_bg")
+                val temp = File(dir, "manager_bg.tmp")
+                val input = ksuApp.contentResolver.openInputStream(uri)
+                    ?: error("Unable to open background image")
+                input.use { source ->
+                    temp.outputStream().use { output -> source.copyTo(output) }
+                }
+                if (target.exists()) target.delete()
+                if (!temp.renameTo(target)) {
+                    temp.copyTo(target, overwrite = true)
+                    temp.delete()
+                }
+                repo.backgroundImagePath = target.absolutePath
+                _uiState.update { it.copy(backgroundImagePath = target.absolutePath) }
+            }
+        }
+    }
+
+    fun removeBackgroundImage() {
+        viewModelScope.launch(Dispatchers.IO) {
+            runCatching {
+                val path = repo.backgroundImagePath
+                if (path.isNotEmpty()) File(path).delete()
+                repo.backgroundImagePath = ""
+                _uiState.update { it.copy(backgroundImagePath = "") }
+            }
+        }
+    }
+
+    fun setBackgroundOpacity(value: Float) {
+        val opacity = value.coerceIn(0.05f, 1f)
+        repo.backgroundOpacity = opacity
+        _uiState.update { it.copy(backgroundOpacity = opacity) }
     }
 
     fun setSulogEnabled(enabled: Boolean) {

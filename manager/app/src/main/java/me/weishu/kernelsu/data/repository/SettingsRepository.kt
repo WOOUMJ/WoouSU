@@ -30,6 +30,9 @@ interface SettingsRepository {
     var suLogFilters: Set<String>?
     var autoJailbreak: Boolean
     var useSoftReboot: Boolean
+    var hideVersionMismatch: Boolean
+    var backgroundImagePath: String
+    var backgroundOpacity: Float
     val intentToken: String
 
     suspend fun getSuCompatStatus(): String

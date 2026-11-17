@@ -169,6 +169,18 @@ class SettingsRepositoryImpl : SettingsRepository {
         get() = prefs.getBoolean(KEY_USE_SOFT_REBOOT, false)
         set(value) = prefs.edit { putBoolean(KEY_USE_SOFT_REBOOT, value) }
 
+    override var hideVersionMismatch: Boolean
+        get() = prefs.getBoolean("hide_version_mismatch", false)
+        set(value) = prefs.edit { putBoolean("hide_version_mismatch", value) }
+
+    override var backgroundImagePath: String
+        get() = prefs.getString("background_image_path", "") ?: ""
+        set(value) = prefs.edit { putString("background_image_path", value) }
+
+    override var backgroundOpacity: Float
+        get() = prefs.getFloat("background_opacity", 0.35f).coerceIn(0.05f, 1f)
+        set(value) = prefs.edit { putFloat("background_opacity", value.coerceIn(0.05f, 1f)) }
+
     override val intentToken: String
         get() {
         val existing = prefs.getString(INTENT_TOKEN_KEY, null)

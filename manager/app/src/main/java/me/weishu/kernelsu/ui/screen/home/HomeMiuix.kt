@@ -58,6 +58,7 @@ import me.weishu.kernelsu.BuildConfig
 import me.weishu.kernelsu.KernelVersion
 import me.weishu.kernelsu.Natives
 import me.weishu.kernelsu.R
+import me.weishu.kernelsu.ui.component.ManagerBackground
 import me.weishu.kernelsu.ui.component.WarningLevel
 import me.weishu.kernelsu.ui.component.dialog.rememberConfirmDialog
 import me.weishu.kernelsu.ui.component.miuix.WarningCard
@@ -100,17 +101,23 @@ fun HomePagerMiuix(
     val backdrop = rememberBlurBackdrop(enableBlur)
     val blurActive = backdrop != null
     val barColor = if (blurActive) Color.Transparent else colorScheme.surface
-    Scaffold(
-        topBar = {
-            TopBar(
-                scrollBehavior = scrollBehavior,
-                backdrop = backdrop,
-                barColor = barColor,
-            )
-        },
-        popupHost = { },
-        contentWindowInsets = WindowInsets.systemBars.add(WindowInsets.displayCutout).only(WindowInsetsSides.Horizontal)
-    ) { innerPadding ->
+    Box(modifier = Modifier.fillMaxSize()) {
+        ManagerBackground(
+            path = state.backgroundImagePath,
+            opacity = state.backgroundOpacity,
+        )
+        Scaffold(
+            topBar = {
+                TopBar(
+                    scrollBehavior = scrollBehavior,
+                    backdrop = backdrop,
+                    barColor = barColor,
+                )
+            },
+            popupHost = { },
+            containerColor = if (state.backgroundImagePath.isNotEmpty()) Color.Transparent else colorScheme.surface,
+            contentWindowInsets = WindowInsets.systemBars.add(WindowInsets.displayCutout).only(WindowInsetsSides.Horizontal)
+        ) { innerPadding ->
         Box(modifier = if (backdrop != null) Modifier.layerBackdrop(backdrop) else Modifier) {
             LazyColumn(
                 modifier = Modifier
@@ -151,7 +158,7 @@ fun HomePagerMiuix(
                                 )
                             )
                         }
-                        if (state.showVersionMismatch) {
+                        if (state.showVersionMismatch && !state.hideVersionMismatch) {
                             WarningCard(
                                 stringResource(
                                     id = R.string.home_version_mismatch,
@@ -191,6 +198,7 @@ fun HomePagerMiuix(
                     }
                 }
             }
+        }
         }
     }
 }
