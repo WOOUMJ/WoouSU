@@ -1,5 +1,7 @@
 # WoouSU
 
+[![简体中文](https://img.shields.io/badge/%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87-README__CN-blue?style=flat-square)](README_CN.md)
+
 ![License](https://img.shields.io/badge/License-GPL--3.0-blue.svg)
 ![Android](https://img.shields.io/badge/Android-12%2B-green.svg)
 ![Kernel](https://img.shields.io/badge/Kernel-5.10%2B-orange.svg)
@@ -36,6 +38,10 @@ A **KernelSU-based, kernel-level root solution for Android**, with optional SUSF
 - Unlocked bootloader.
 - A stock `boot` / `init_boot` image matching your **current** firmware build (never mix versions).
 - A backup of the stock image so you can roll back.
+
+### Install the manager
+
+Download the APK from Releases, or build it yourself (see [Building](#building)). The manager package name is `com.woousu.wo`. It is **not** compatible with the upstream KernelSU manager or managers from other forks — install only one.
 
 ### Option A — Patch the stock boot image (works on any KernelSU-supported device)
 
