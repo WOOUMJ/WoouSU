@@ -11,6 +11,7 @@ import me.weishu.kernelsu.data.repository.SettingsRepository
 import me.weishu.kernelsu.data.repository.SettingsRepositoryImpl
 import me.weishu.kernelsu.ksuApp
 import me.weishu.kernelsu.ui.UiMode
+import me.weishu.kernelsu.ui.component.ManagerAppearance
 import me.weishu.kernelsu.ui.theme.ThemeController
 
 class MainActivityViewModel(
@@ -54,6 +55,13 @@ class MainActivityViewModel(
             pagerInterceptionMode = settingRepo.pagerInterceptionMode,
             moduleDescriptionMaxLines = settingRepo.moduleDescriptionMaxLines,
             uiMode = UiMode.fromValue(settingRepo.uiMode),
+            appearance = ManagerAppearance(
+                backgroundImagePath = settingRepo.backgroundImagePath,
+                backgroundOpacity = settingRepo.backgroundOpacity,
+                hideVersionMismatch = settingRepo.hideVersionMismatch,
+                statusText = settingRepo.statusText,
+                statusImagePath = settingRepo.statusImagePath,
+            ),
         )
     }
 
@@ -72,6 +80,11 @@ class MainActivityViewModel(
             "enable_swipe_dismiss",
             "pager_interception_mode",
             "ui_mode",
+            "background_image_path",
+            "background_opacity",
+            "hide_version_mismatch",
+            "status_text",
+            "status_image_path",
         )
     }
 }

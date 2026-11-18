@@ -44,12 +44,6 @@ fun SettingPager(
         onPauseOrDispose { }
     }
 
-    val backgroundImageLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri ->
-        if (uri != null) viewModel.setBackgroundImage(uri)
-    }
-
     val actions = SettingsScreenActions(
         onSetCheckUpdate = viewModel::setCheckUpdate,
         onSetCheckModuleUpdate = viewModel::setCheckModuleUpdate,
@@ -69,9 +63,6 @@ fun SettingPager(
         onSetAutoJailbreak = viewModel::setAutoJailbreak,
         onSetUseSoftReboot = viewModel::setUseSoftReboot,
         onSetHideVersionMismatch = viewModel::setHideVersionMismatch,
-        onPickBackgroundImage = { backgroundImageLauncher.launch("image/*") },
-        onRemoveBackgroundImage = viewModel::removeBackgroundImage,
-        onSetBackgroundOpacity = viewModel::setBackgroundOpacity,
         onOpenAbout = { navigator.push(Route.About) },
     )
 

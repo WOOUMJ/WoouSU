@@ -33,6 +33,8 @@ interface SettingsRepository {
     var hideVersionMismatch: Boolean
     var backgroundImagePath: String
     var backgroundOpacity: Float
+    var statusText: String
+    var statusImagePath: String
     val intentToken: String
 
     suspend fun getSuCompatStatus(): String

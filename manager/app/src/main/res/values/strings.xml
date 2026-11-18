@@ -176,6 +176,15 @@
     <string name="settings_background_remove">Remove background image</string>
     <string name="settings_background_opacity">Background opacity</string>
     <string name="settings_background_empty">No background image set</string>
+    <string name="settings_background_selected">Custom image selected</string>
+    <string name="settings_status_section">"Working" status card</string>
+    <string name="settings_status_image_pick">Custom card image</string>
+    <string name="settings_status_image_selected">Custom image selected</string>
+    <string name="settings_status_image_remove">Restore default image</string>
+    <string name="settings_status_text">Custom card text</string>
+    <string name="settings_status_text_default">Default: Working</string>
+    <string name="settings_status_text_dialog_title">Custom status text</string>
+    <string name="settings_status_text_hint">Leave empty to use the default text</string>
     <string name="settings_enable_predictive_back">Predictive back gesture</string>
     <string name="settings_enable_predictive_back_summary">Enable predictive back gesture support.</string>
     <string name="settings_enable_swipe_dismiss">Swipe back gesture</string>

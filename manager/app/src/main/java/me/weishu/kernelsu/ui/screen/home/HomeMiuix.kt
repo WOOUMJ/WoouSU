@@ -58,7 +58,8 @@ import me.weishu.kernelsu.BuildConfig
 import me.weishu.kernelsu.KernelVersion
 import me.weishu.kernelsu.Natives
 import me.weishu.kernelsu.R
-import me.weishu.kernelsu.ui.component.ManagerBackground
+import me.weishu.kernelsu.ui.component.LocalManagerAppearance
+import me.weishu.kernelsu.ui.component.ManagerImage
 import me.weishu.kernelsu.ui.component.WarningLevel
 import me.weishu.kernelsu.ui.component.dialog.rememberConfirmDialog
 import me.weishu.kernelsu.ui.component.miuix.WarningCard
@@ -98,26 +99,22 @@ fun HomePagerMiuix(
 ) {
     val scrollBehavior = MiuixScrollBehavior()
     val enableBlur = LocalEnableBlur.current
+    val appearance = LocalManagerAppearance.current
     val backdrop = rememberBlurBackdrop(enableBlur)
     val blurActive = backdrop != null
-    val barColor = if (blurActive) Color.Transparent else colorScheme.surface
-    Box(modifier = Modifier.fillMaxSize()) {
-        ManagerBackground(
-            path = state.backgroundImagePath,
-            opacity = state.backgroundOpacity,
-        )
-        Scaffold(
-            topBar = {
-                TopBar(
-                    scrollBehavior = scrollBehavior,
-                    backdrop = backdrop,
-                    barColor = barColor,
-                )
-            },
-            popupHost = { },
-            containerColor = if (state.backgroundImagePath.isNotEmpty()) Color.Transparent else colorScheme.surface,
-            contentWindowInsets = WindowInsets.systemBars.add(WindowInsets.displayCutout).only(WindowInsetsSides.Horizontal)
-        ) { innerPadding ->
+    val barColor = if (blurActive || appearance.hasBackground) Color.Transparent else colorScheme.surface
+    Scaffold(
+        topBar = {
+            TopBar(
+                scrollBehavior = scrollBehavior,
+                backdrop = backdrop,
+                barColor = barColor,
+            )
+        },
+        popupHost = { },
+        containerColor = if (appearance.hasBackground) Color.Transparent else colorScheme.surface,
+        contentWindowInsets = WindowInsets.systemBars.add(WindowInsets.displayCutout).only(WindowInsetsSides.Horizontal)
+    ) { innerPadding ->
         Box(modifier = if (backdrop != null) Modifier.layerBackdrop(backdrop) else Modifier) {
             LazyColumn(
                 modifier = Modifier
@@ -158,7 +155,7 @@ fun HomePagerMiuix(
                                 )
                             )
                         }
-                        if (state.showVersionMismatch && !state.hideVersionMismatch) {
+                        if (state.showVersionMismatch && !appearance.hideVersionMismatch) {
                             WarningCard(
                                 stringResource(
                                     id = R.string.home_version_mismatch,
@@ -198,7 +195,6 @@ fun HomePagerMiuix(
                     }
                 }
             }
-        }
         }
     }
 }
@@ -276,7 +272,10 @@ private fun StatusCard(
                     true -> "LKM"
                     else -> "GKI"
                 }
-                val workingText = "${stringResource(id = R.string.home_working)}$workingState"
+                val appearance = LocalManagerAppearance.current
+                val workingText = appearance.statusText.ifEmpty {
+                    stringResource(id = R.string.home_working)
+                } + workingState
 
                 Row(
                     modifier = Modifier
@@ -308,16 +307,23 @@ private fun StatusCard(
                                     .offset(27.dp, 31.dp),
                                 contentAlignment = Alignment.BottomEnd
                             ) {
-                                Icon(
-                                    modifier = Modifier.size(110.dp),
-                                    imageVector = Icons.Rounded.CheckCircleOutline,
-                                    tint = if (isDynamicColor) {
-                                        colorScheme.primary.copy(alpha = 0.8f)
-                                    } else {
-                                        Color(0xFF36D167)
-                                    },
-                                    contentDescription = null
-                                )
+                                if (appearance.statusImagePath.isNotEmpty()) {
+                                    ManagerImage(
+                                        path = appearance.statusImagePath,
+                                        modifier = Modifier.size(110.dp),
+                                    )
+                                } else {
+                                    Icon(
+                                        modifier = Modifier.size(110.dp),
+                                        imageVector = Icons.Rounded.CheckCircleOutline,
+                                        tint = if (isDynamicColor) {
+                                            colorScheme.primary.copy(alpha = 0.8f)
+                                        } else {
+                                            Color(0xFF36D167)
+                                        },
+                                        contentDescription = null
+                                    )
+                                }
                             }
                             if (workingMode != null) {
                                 Box(

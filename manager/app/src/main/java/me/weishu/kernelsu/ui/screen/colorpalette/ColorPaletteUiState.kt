@@ -32,4 +32,10 @@ data class ColorPaletteScreenActions(
     val onSetPagerInterceptionMode: (Int) -> Unit,
     val onSetPageScale: (Float) -> Unit,
     val onSetModuleDescriptionMaxLines: (Int) -> Unit,
+    val onPickBackgroundImage: () -> Unit,
+    val onRemoveBackgroundImage: () -> Unit,
+    val onSetBackgroundOpacity: (Float) -> Unit,
+    val onPickStatusImage: () -> Unit,
+    val onRemoveStatusImage: () -> Unit,
+    val onSetStatusText: (String) -> Unit,
 )
