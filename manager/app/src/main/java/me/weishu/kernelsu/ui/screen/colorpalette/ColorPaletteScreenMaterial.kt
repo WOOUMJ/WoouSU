@@ -42,12 +42,18 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.rounded.MenuOpen
 import androidx.compose.material.icons.filled.Brightness1
 import androidx.compose.material.icons.filled.Brightness3
 import androidx.compose.material.icons.filled.Brightness4
 import androidx.compose.material.icons.filled.Brightness7
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DisplaySettings
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material.icons.rounded.AspectRatio
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Description
@@ -56,18 +62,24 @@ import androidx.compose.material.icons.rounded.Pin
 import androidx.compose.material.icons.rounded.Style
 import androidx.compose.material.icons.rounded.Swipe
 import androidx.compose.material.icons.rounded.ViewCarousel
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonGroupDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LargeFlexibleTopAppBar
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberSliderState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -90,6 +102,7 @@ import me.weishu.kernelsu.ui.component.material.ExpressiveScaffold
 import me.weishu.kernelsu.ui.component.material.ExpressiveToggleButton
 import me.weishu.kernelsu.ui.component.material.SegmentedColumn
 import me.weishu.kernelsu.ui.component.material.SegmentedDropdownItem
+import me.weishu.kernelsu.ui.component.material.SegmentedListItem
 import me.weishu.kernelsu.ui.component.material.SegmentedSwitchItem
 import me.weishu.kernelsu.ui.component.material.TonalCard
 import me.weishu.kernelsu.ui.component.material.TopBarBackButton
@@ -111,6 +124,8 @@ fun ColorPaletteScreenMaterial(
     val colorStyle = state.currentPaletteStyle
     val colorSpec = state.currentColorSpec
     val haptic = LocalHapticFeedback.current
+    var showStatusTextDialog by remember { mutableStateOf(false) }
+    var statusTextDraft by remember { mutableStateOf("") }
 
     ExpressiveScaffold(
         topBar = {
@@ -267,6 +282,143 @@ fun ColorPaletteScreenMaterial(
                             )
                         }
                     )
+                )
+            }
+
+            item {
+                SegmentedColumn(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    content = buildList {
+                        add {
+                            SegmentedListItem(
+                                onClick = actions.onPickBackgroundImage,
+                                headlineContent = { Text(stringResource(R.string.settings_background_pick)) },
+                                supportingContent = {
+                                    Text(
+                                        if (uiState.backgroundImagePath.isEmpty()) {
+                                            stringResource(R.string.settings_background_empty)
+                                        } else {
+                                            stringResource(R.string.settings_background_selected)
+                                        }
+                                    )
+                                },
+                                leadingContent = { Icon(Icons.Filled.Palette, null) },
+                                trailingContent = {
+                                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
+                                }
+                            )
+                        }
+                        if (uiState.backgroundImagePath.isNotEmpty()) {
+                            add {
+                                SegmentedListItem(
+                                    onClick = actions.onRemoveBackgroundImage,
+                                    headlineContent = { Text(stringResource(R.string.settings_background_remove)) },
+                                    leadingContent = { Icon(Icons.Filled.Delete, null) }
+                                )
+                            }
+                        }
+                    }
+                )
+            }
+
+            if (uiState.backgroundImagePath.isNotEmpty()) {
+                item {
+                    TonalCard(modifier = Modifier.padding(horizontal = 16.dp)) {
+                        val sliderState = rememberSliderState(
+                            value = uiState.backgroundOpacity,
+                            trackRange = 0.05f..1f
+                        )
+
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Filled.DisplaySettings,
+                                    contentDescription = stringResource(id = R.string.settings_background_opacity),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text(
+                                    text = stringResource(R.string.settings_background_opacity),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Text(
+                                    text = "${(sliderState.value * 100).toInt()}%",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+
+                            Slider(
+                                state = sliderState,
+                                onValueChange = { actions.onSetBackgroundOpacity(it) },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+                }
+            }
+
+            item {
+                SegmentedColumn(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    content = buildList {
+                        add {
+                            SegmentedListItem(
+                                onClick = actions.onPickStatusImage,
+                                headlineContent = { Text(stringResource(R.string.settings_status_image_pick)) },
+                                supportingContent = {
+                                    Text(
+                                        if (uiState.statusImagePath.isEmpty()) {
+                                            stringResource(R.string.settings_status_section)
+                                        } else {
+                                            stringResource(R.string.settings_status_image_selected)
+                                        }
+                                    )
+                                },
+                                leadingContent = { Icon(Icons.Filled.Image, null) },
+                                trailingContent = {
+                                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
+                                }
+                            )
+                        }
+                        if (uiState.statusImagePath.isNotEmpty()) {
+                            add {
+                                SegmentedListItem(
+                                    onClick = actions.onRemoveStatusImage,
+                                    headlineContent = { Text(stringResource(R.string.settings_status_image_remove)) },
+                                    leadingContent = { Icon(Icons.Filled.Delete, null) }
+                                )
+                            }
+                        }
+                        add {
+                            SegmentedListItem(
+                                onClick = {
+                                    statusTextDraft = uiState.statusText
+                                    showStatusTextDialog = true
+                                },
+                                headlineContent = { Text(stringResource(R.string.settings_status_text)) },
+                                supportingContent = {
+                                    Text(
+                                        uiState.statusText.ifEmpty {
+                                            stringResource(R.string.settings_status_text_default)
+                                        }
+                                    )
+                                },
+                                leadingContent = { Icon(Icons.Filled.TextFields, null) },
+                                trailingContent = {
+                                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
+                                }
+                            )
+                        }
+                    }
                 )
             }
 
@@ -444,6 +596,35 @@ fun ColorPaletteScreenMaterial(
             item {
                 Spacer(modifier = Modifier.height(16.dp + navBars.calculateBottomPadding() + captionBar.calculateBottomPadding()))
             }
+        }
+
+        if (showStatusTextDialog) {
+            AlertDialog(
+                onDismissRequest = { showStatusTextDialog = false },
+                title = { Text(stringResource(R.string.settings_status_text_dialog_title)) },
+                text = {
+                    OutlinedTextField(
+                        value = statusTextDraft,
+                        onValueChange = { statusTextDraft = it },
+                        singleLine = true,
+                        placeholder = { Text(stringResource(R.string.settings_status_text_hint)) },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            actions.onSetStatusText(statusTextDraft.trim())
+                            showStatusTextDialog = false
+                        }
+                    ) { Text(stringResource(android.R.string.ok)) }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showStatusTextDialog = false }) {
+                        Text(stringResource(android.R.string.cancel))
+                    }
+                }
+            )
         }
     }
 }

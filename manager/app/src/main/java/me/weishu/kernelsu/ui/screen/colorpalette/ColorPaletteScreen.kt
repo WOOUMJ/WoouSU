@@ -1,6 +1,8 @@
 package me.weishu.kernelsu.ui.screen.colorpalette
 
 import androidx.activity.compose.LocalActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
@@ -33,6 +35,17 @@ fun ColorPaletteScreen() {
     } catch (_: Exception) {
         ColorSpec.SpecVersion.SPEC_2025
     }
+    val backgroundLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (uri != null) viewModel.setBackgroundImage(uri)
+    }
+    val statusImageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (uri != null) viewModel.setStatusImage(uri)
+    }
+
     val state = ColorPaletteUiState(
         uiState = uiState,
         currentColorMode = ColorMode.fromValue(uiState.themeMode),
@@ -60,6 +73,12 @@ fun ColorPaletteScreen() {
         onSetPagerInterceptionMode = viewModel::setPagerInterceptionMode,
         onSetPageScale = viewModel::setPageScale,
         onSetModuleDescriptionMaxLines = viewModel::setModuleDescriptionMaxLines,
+        onPickBackgroundImage = { backgroundLauncher.launch("image/*") },
+        onRemoveBackgroundImage = viewModel::removeBackgroundImage,
+        onSetBackgroundOpacity = viewModel::setBackgroundOpacity,
+        onPickStatusImage = { statusImageLauncher.launch("image/*") },
+        onRemoveStatusImage = viewModel::removeStatusImage,
+        onSetStatusText = viewModel::setStatusText,
     )
 
     when (LocalUiMode.current) {

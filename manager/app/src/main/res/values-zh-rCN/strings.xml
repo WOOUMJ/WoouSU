@@ -161,6 +161,15 @@
     <string name="settings_background_remove">移除背景图片</string>
     <string name="settings_background_opacity">背景不透明度</string>
     <string name="settings_background_empty">未设置背景图片</string>
+    <string name="settings_background_selected">已选择自定义图片</string>
+    <string name="settings_status_section">「工作中」状态卡片</string>
+    <string name="settings_status_image_pick">自定义卡片图片</string>
+    <string name="settings_status_image_selected">已选择自定义图片</string>
+    <string name="settings_status_image_remove">恢复默认图片</string>
+    <string name="settings_status_text">自定义卡片文字</string>
+    <string name="settings_status_text_default">默认：工作中</string>
+    <string name="settings_status_text_dialog_title">自定义状态文字</string>
+    <string name="settings_status_text_hint">留空则使用默认文字</string>
     <string name="settings_enable_predictive_back">预测性返回手势</string>
     <string name="settings_enable_predictive_back_summary">启用对预测性返回手势的支持</string>
     <string name="settings_enable_swipe_dismiss">横移返回手势</string>

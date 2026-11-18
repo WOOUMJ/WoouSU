@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import me.weishu.kernelsu.R
 import me.weishu.kernelsu.ui.UiMode
 import me.weishu.kernelsu.ui.component.KsuIsValid
+import me.weishu.kernelsu.ui.component.LocalManagerAppearance
 import me.weishu.kernelsu.ui.component.dialog.rememberLoadingDialog
 import me.weishu.kernelsu.ui.component.miuix.SendLogDialog
 import me.weishu.kernelsu.ui.component.uninstalldialog.UninstallDialog
@@ -80,12 +81,14 @@ fun SettingPagerMiuix(
     val enableBlur = LocalEnableBlur.current
     val backdrop = rememberBlurBackdrop(enableBlur)
     val blurActive = backdrop != null
-    val barColor = if (blurActive) Color.Transparent else colorScheme.surface
+    val hasBackground = LocalManagerAppearance.current.hasBackground
+    val barColor = if (blurActive || hasBackground) Color.Transparent else colorScheme.surface
     val loadingDialog = rememberLoadingDialog()
     val showUninstallDialog = rememberSaveable { mutableStateOf(false) }
     val showSendLogDialog = rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
+        containerColor = if (hasBackground) Color.Transparent else colorScheme.surface,
         topBar = {
             BlurredBar(backdrop) {
                 TopAppBar(
@@ -194,68 +197,6 @@ fun SettingPagerMiuix(
                             },
                             onClick = actions.onOpenTheme
                         )
-                    }
-
-                    Card(
-                        modifier = Modifier
-                            .padding(top = 12.dp)
-                            .fillMaxWidth(),
-                    ) {
-                        ArrowPreference(
-                            title = stringResource(id = R.string.settings_background_pick),
-                            summary = if (uiState.backgroundImagePath.isEmpty()) {
-                                stringResource(id = R.string.settings_background_empty)
-                            } else {
-                                uiState.backgroundImagePath.substringAfterLast('/')
-                            },
-                            startAction = {
-                                Icon(
-                                    Icons.Rounded.Palette,
-                                    modifier = Modifier.padding(end = 6.dp),
-                                    contentDescription = stringResource(id = R.string.settings_background_pick),
-                                    tint = colorScheme.onBackground
-                                )
-                            },
-                            onClick = actions.onPickBackgroundImage
-                        )
-                        if (uiState.backgroundImagePath.isNotEmpty()) {
-                            ArrowPreference(
-                                title = stringResource(id = R.string.settings_background_remove),
-                                startAction = {
-                                    Icon(
-                                        Icons.Rounded.Delete,
-                                        modifier = Modifier.padding(end = 6.dp),
-                                        contentDescription = stringResource(id = R.string.settings_background_remove),
-                                        tint = colorScheme.onBackground
-                                    )
-                                },
-                                onClick = actions.onRemoveBackgroundImage
-                            )
-                            BasicComponent(
-                                title = stringResource(id = R.string.settings_background_opacity),
-                                startAction = {
-                                    Icon(
-                                        Icons.Rounded.DisplaySettings,
-                                        modifier = Modifier.padding(end = 6.dp),
-                                        contentDescription = stringResource(id = R.string.settings_background_opacity),
-                                        tint = colorScheme.onBackground
-                                    )
-                                },
-                                endActions = {
-                                    Text(
-                                        text = "${(uiState.backgroundOpacity * 100).toInt()}%",
-                                        color = colorScheme.onSurfaceVariantActions,
-                                    )
-                                },
-                                bottomAction = {
-                                    Slider(
-                                        value = uiState.backgroundOpacity,
-                                        onValueChange = actions.onSetBackgroundOpacity,
-                                        valueRange = 0.05f..1f,
-                                    )
-                                }
-                            )
-                        }
                     }
 
                     KsuIsValid {

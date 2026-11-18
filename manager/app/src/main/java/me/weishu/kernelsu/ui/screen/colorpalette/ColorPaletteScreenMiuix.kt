@@ -39,9 +39,12 @@ import androidx.compose.material.icons.rounded.BlurOn
 import androidx.compose.material.icons.rounded.CallToAction
 import androidx.compose.material.icons.rounded.Colorize
 import androidx.compose.material.icons.rounded.Description
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.DesignServices
+import androidx.compose.material.icons.rounded.Image
 import androidx.compose.material.icons.rounded.Pin
 import androidx.compose.material.icons.rounded.Style
+import androidx.compose.material.icons.rounded.TextFields
 import androidx.compose.material.icons.rounded.Wallpaper
 import androidx.compose.material.icons.rounded.WaterDrop
 import androidx.compose.material.icons.rounded.Swipe
@@ -71,6 +74,7 @@ import com.materialkolor.PaletteStyle
 import com.materialkolor.dynamiccolor.ColorSpec
 import com.materialkolor.rememberDynamicColorScheme
 import me.weishu.kernelsu.R
+import me.weishu.kernelsu.ui.component.LocalManagerAppearance
 import me.weishu.kernelsu.ui.component.bottombar.useNavigationRail
 import me.weishu.kernelsu.ui.component.miuix.ScaleDialog
 import me.weishu.kernelsu.ui.theme.LocalEnableBlur
@@ -78,6 +82,7 @@ import me.weishu.kernelsu.ui.theme.keyColorOptions
 import me.weishu.kernelsu.ui.util.BlurredBar
 import me.weishu.kernelsu.ui.util.rememberBlurBackdrop
 import top.yukonga.miuix.kmp.basic.BasicComponent
+import top.yukonga.miuix.kmp.basic.ButtonDefaults
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
@@ -87,10 +92,13 @@ import top.yukonga.miuix.kmp.basic.Slider
 import top.yukonga.miuix.kmp.basic.SliderDefaults
 import top.yukonga.miuix.kmp.basic.TabRow
 import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextButton
+import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.basic.TopAppBar
 import top.yukonga.miuix.kmp.blur.layerBackdrop
 import top.yukonga.miuix.kmp.icon.MiuixIcons
 import top.yukonga.miuix.kmp.icon.extended.Back
+import top.yukonga.miuix.kmp.overlay.OverlayDialog
 import top.yukonga.miuix.kmp.preference.ArrowPreference
 import top.yukonga.miuix.kmp.preference.OverlayDropdownPreference
 import top.yukonga.miuix.kmp.preference.SwitchPreference
@@ -107,12 +115,16 @@ fun ColorPaletteScreenMiuix(
     val enableBlurState = LocalEnableBlur.current
     val backdrop = rememberBlurBackdrop(enableBlurState)
     val blurActive = backdrop != null
-    val barColor = if (blurActive) Color.Transparent else colorScheme.surface
+    val hasBackground = LocalManagerAppearance.current.hasBackground
+    val barColor = if (blurActive || hasBackground) Color.Transparent else colorScheme.surface
     val uiState = state.uiState
     val currentColorMode = state.currentColorMode
     val isDark = currentColorMode.isDark || currentColorMode.isSystem && isSystemInDarkTheme()
+    var showStatusTextDialog by remember { mutableStateOf(false) }
+    var statusTextDraft by remember { mutableStateOf("") }
 
     Scaffold(
+        containerColor = if (hasBackground) Color.Transparent else colorScheme.surface,
         topBar = {
             BlurredBar(backdrop) {
                 TopAppBar(
@@ -365,6 +377,130 @@ fun ColorPaletteScreenMiuix(
                             .padding(top = 12.dp)
                             .fillMaxWidth(),
                     ) {
+                        ArrowPreference(
+                            title = stringResource(id = R.string.settings_background_pick),
+                            summary = if (uiState.backgroundImagePath.isEmpty()) {
+                                stringResource(id = R.string.settings_background_empty)
+                            } else {
+                                stringResource(id = R.string.settings_background_selected)
+                            },
+                            startAction = {
+                                Icon(
+                                    Icons.Rounded.Wallpaper,
+                                    modifier = Modifier.padding(end = 6.dp),
+                                    contentDescription = stringResource(id = R.string.settings_background_pick),
+                                    tint = colorScheme.onBackground
+                                )
+                            },
+                            onClick = actions.onPickBackgroundImage
+                        )
+                        if (uiState.backgroundImagePath.isNotEmpty()) {
+                            ArrowPreference(
+                                title = stringResource(id = R.string.settings_background_remove),
+                                startAction = {
+                                    Icon(
+                                        Icons.Rounded.Delete,
+                                        modifier = Modifier.padding(end = 6.dp),
+                                        contentDescription = stringResource(id = R.string.settings_background_remove),
+                                        tint = colorScheme.onBackground
+                                    )
+                                },
+                                onClick = actions.onRemoveBackgroundImage
+                            )
+                            var opacityValue by remember(uiState.backgroundOpacity) {
+                                mutableFloatStateOf(uiState.backgroundOpacity)
+                            }
+                            BasicComponent(
+                                title = stringResource(id = R.string.settings_background_opacity),
+                                startAction = {
+                                    Icon(
+                                        Icons.Rounded.WaterDrop,
+                                        modifier = Modifier.padding(end = 6.dp),
+                                        contentDescription = stringResource(id = R.string.settings_background_opacity),
+                                        tint = colorScheme.onBackground
+                                    )
+                                },
+                                endActions = {
+                                    Text(
+                                        text = "${(opacityValue * 100).toInt()}%",
+                                        color = colorScheme.onSurfaceVariantActions,
+                                    )
+                                },
+                                bottomAction = {
+                                    Slider(
+                                        value = opacityValue,
+                                        onValueChange = {
+                                            opacityValue = it
+                                            actions.onSetBackgroundOpacity(it)
+                                        },
+                                        valueRange = 0.05f..1f,
+                                    )
+                                }
+                            )
+                        }
+                    }
+
+                    Card(
+                        modifier = Modifier
+                            .padding(top = 12.dp)
+                            .fillMaxWidth(),
+                    ) {
+                        ArrowPreference(
+                            title = stringResource(id = R.string.settings_status_image_pick),
+                            summary = if (uiState.statusImagePath.isEmpty()) {
+                                stringResource(id = R.string.settings_status_section)
+                            } else {
+                                stringResource(id = R.string.settings_status_image_selected)
+                            },
+                            startAction = {
+                                Icon(
+                                    Icons.Rounded.Image,
+                                    modifier = Modifier.padding(end = 6.dp),
+                                    contentDescription = stringResource(id = R.string.settings_status_image_pick),
+                                    tint = colorScheme.onBackground
+                                )
+                            },
+                            onClick = actions.onPickStatusImage
+                        )
+                        if (uiState.statusImagePath.isNotEmpty()) {
+                            ArrowPreference(
+                                title = stringResource(id = R.string.settings_status_image_remove),
+                                startAction = {
+                                    Icon(
+                                        Icons.Rounded.Delete,
+                                        modifier = Modifier.padding(end = 6.dp),
+                                        contentDescription = stringResource(id = R.string.settings_status_image_remove),
+                                        tint = colorScheme.onBackground
+                                    )
+                                },
+                                onClick = actions.onRemoveStatusImage
+                            )
+                        }
+                        ArrowPreference(
+                            title = stringResource(id = R.string.settings_status_text),
+                            summary = uiState.statusText.ifEmpty {
+                                stringResource(id = R.string.settings_status_text_default)
+                            },
+                            startAction = {
+                                Icon(
+                                    Icons.Rounded.TextFields,
+                                    modifier = Modifier.padding(end = 6.dp),
+                                    contentDescription = stringResource(id = R.string.settings_status_text),
+                                    tint = colorScheme.onBackground
+                                )
+                            },
+                            onClick = {
+                                statusTextDraft = uiState.statusText
+                                showStatusTextDialog = true
+                            }
+                        )
+                    }
+
+                    Card(
+                        modifier = Modifier
+                            .padding(top = 12.dp)
+                            .fillMaxWidth(),
+                    ) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                             SwitchPreference(
                                 title = stringResource(id = R.string.settings_enable_predictive_back),
@@ -516,6 +652,37 @@ fun ColorPaletteScreenMiuix(
                 }
             }
         }
+
+        OverlayDialog(
+            show = showStatusTextDialog,
+            title = stringResource(R.string.settings_status_text_dialog_title),
+            onDismissRequest = { showStatusTextDialog = false },
+            content = {
+                TextField(
+                    modifier = Modifier.padding(bottom = 16.dp),
+                    value = statusTextDraft,
+                    maxLines = 1,
+                    onValueChange = { statusTextDraft = it }
+                )
+                Row(horizontalArrangement = Arrangement.SpaceBetween) {
+                    TextButton(
+                        text = stringResource(android.R.string.cancel),
+                        onClick = { showStatusTextDialog = false },
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(modifier = Modifier.width(20.dp))
+                    TextButton(
+                        text = stringResource(R.string.confirm),
+                        onClick = {
+                            actions.onSetStatusText(statusTextDraft.trim())
+                            showStatusTextDialog = false
+                        },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.textButtonColorsPrimary()
+                    )
+                }
+            }
+        )
     }
 }
 

@@ -181,6 +181,14 @@ class SettingsRepositoryImpl : SettingsRepository {
         get() = prefs.getFloat("background_opacity", 0.35f).coerceIn(0.05f, 1f)
         set(value) = prefs.edit { putFloat("background_opacity", value.coerceIn(0.05f, 1f)) }
 
+    override var statusText: String
+        get() = prefs.getString("status_text", "") ?: ""
+        set(value) = prefs.edit { putString("status_text", value) }
+
+    override var statusImagePath: String
+        get() = prefs.getString("status_image_path", "") ?: ""
+        set(value) = prefs.edit { putString("status_image_path", value) }
+
     override val intentToken: String
         get() {
         val existing = prefs.getString(INTENT_TOKEN_KEY, null)

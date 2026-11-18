@@ -11,6 +11,25 @@ import androidx.compose.ui.layout.ContentScale
 
 @Composable
 fun ManagerBackground(path: String, opacity: Float, modifier: Modifier = Modifier) {
+    ManagerImage(
+        path = path,
+        modifier = modifier.fillMaxSize(),
+        contentScale = ContentScale.Crop,
+        alpha = opacity,
+    )
+}
+
+/**
+ * Draws an image file. [path] is expected to be unique per image (the picker writes a new
+ * file name every time), so a plain [remember] keyed on it reloads instantly.
+ */
+@Composable
+fun ManagerImage(
+    path: String,
+    modifier: Modifier = Modifier,
+    contentScale: ContentScale = ContentScale.Crop,
+    alpha: Float = 1f,
+) {
     val bitmap = remember(path) {
         if (path.isEmpty()) null else runCatching { BitmapFactory.decodeFile(path) }.getOrNull()
     } ?: return
@@ -18,8 +37,8 @@ fun ManagerBackground(path: String, opacity: Float, modifier: Modifier = Modifie
     Image(
         bitmap = bitmap.asImageBitmap(),
         contentDescription = null,
-        contentScale = ContentScale.Crop,
-        alpha = opacity,
-        modifier = modifier.fillMaxSize()
+        contentScale = contentScale,
+        alpha = alpha,
+        modifier = modifier
     )
 }

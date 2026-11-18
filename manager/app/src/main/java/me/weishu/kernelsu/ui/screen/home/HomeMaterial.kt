@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -55,6 +56,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
@@ -66,7 +68,8 @@ import me.weishu.kernelsu.BuildConfig
 import me.weishu.kernelsu.KernelVersion
 import me.weishu.kernelsu.Natives
 import me.weishu.kernelsu.R
-import me.weishu.kernelsu.ui.component.ManagerBackground
+import me.weishu.kernelsu.ui.component.LocalManagerAppearance
+import me.weishu.kernelsu.ui.component.ManagerImage
 import me.weishu.kernelsu.ui.component.WarningLevel
 import me.weishu.kernelsu.ui.component.dialog.rememberConfirmDialog
 import me.weishu.kernelsu.ui.component.material.ExpressiveScaffold
@@ -84,21 +87,12 @@ fun HomePagerMaterial(
     bottomInnerPadding: Dp,
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+    val appearance = LocalManagerAppearance.current
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        ManagerBackground(
-            path = state.backgroundImagePath,
-            opacity = state.backgroundOpacity,
-        )
-        ExpressiveScaffold(
-            topBar = { TopBar(scrollBehavior = scrollBehavior) },
-            containerColor = if (state.backgroundImagePath.isNotEmpty()) {
-                Color.Transparent
-            } else {
-                MaterialTheme.colorScheme.surfaceContainer
-            },
-            contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
-        ) { innerPadding ->
+    ExpressiveScaffold(
+        topBar = { TopBar(scrollBehavior = scrollBehavior) },
+        contentWindowInsets = WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .padding(innerPadding)
@@ -130,7 +124,7 @@ fun HomePagerMaterial(
                     )
                 )
             }
-            if (state.showVersionMismatch && !state.hideVersionMismatch) {
+            if (state.showVersionMismatch && !appearance.hideVersionMismatch) {
                 WarningCard(
                     stringResource(
                         id = R.string.home_version_mismatch,
@@ -161,7 +155,6 @@ fun HomePagerMaterial(
                         WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding() else 0.dp
                 )
             )
-        }
         }
     }
 }
@@ -228,13 +221,14 @@ private fun StatusCard(
         }
         val contentColor = MaterialTheme.colorScheme.contentColorFor(containerColor)
 
+        val appearance = LocalManagerAppearance.current
         val statusIcon = when {
             ksuActive -> Icons.Rounded.CheckCircle
             notInstalled -> Icons.Rounded.Warning
             else -> Icons.Rounded.Block
         }
         val statusTitle = when {
-            ksuActive -> stringResource(R.string.home_working)
+            ksuActive -> appearance.statusText.ifEmpty { stringResource(R.string.home_working) }
             notInstalled -> stringResource(R.string.home_not_installed)
             else -> stringResource(R.string.home_unsupported)
         }
@@ -287,7 +281,15 @@ private fun StatusCard(
             ListItem(
                 modifier = Modifier,
                 leadingContent = {
-                    Icon(statusIcon, contentDescription = statusTitle)
+                    if (ksuActive && appearance.statusImagePath.isNotEmpty()) {
+                        ManagerImage(
+                            path = appearance.statusImagePath,
+                            modifier = Modifier.size(40.dp),
+                            contentScale = ContentScale.Crop,
+                        )
+                    } else {
+                        Icon(statusIcon, contentDescription = statusTitle)
+                    }
                 },
                 trailingContent = statusTrailing,
                 overlineContent = null,

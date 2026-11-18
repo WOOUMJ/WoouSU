@@ -161,53 +161,6 @@ fun SettingPagerMaterial(
                 }
             )
 
-            SegmentedColumn(
-                modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 13.dp),
-                content = buildList {
-                    add {
-                        SegmentedListItem(
-                            onClick = actions.onPickBackgroundImage,
-                            headlineContent = { Text(stringResource(id = R.string.settings_background_pick)) },
-                            supportingContent = {
-                                Text(
-                                    if (uiState.backgroundImagePath.isEmpty()) {
-                                        stringResource(id = R.string.settings_background_empty)
-                                    } else {
-                                        uiState.backgroundImagePath.substringAfterLast('/')
-                                    }
-                                )
-                            },
-                            leadingContent = { Icon(Icons.Filled.Palette, stringResource(id = R.string.settings_background_pick)) },
-                            trailingContent = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null) }
-                        )
-                    }
-                    if (uiState.backgroundImagePath.isNotEmpty()) {
-                        add {
-                            SegmentedListItem(
-                                onClick = actions.onRemoveBackgroundImage,
-                                headlineContent = { Text(stringResource(id = R.string.settings_background_remove)) },
-                                leadingContent = { Icon(Icons.Filled.Delete, stringResource(id = R.string.settings_background_remove)) }
-                            )
-                        }
-                        add {
-                            SegmentedListItem(
-                                headlineContent = { Text(stringResource(id = R.string.settings_background_opacity)) },
-                                supportingContent = {
-                                    Slider(
-                                        value = uiState.backgroundOpacity,
-                                        onValueChange = actions.onSetBackgroundOpacity,
-                                        valueRange = 0.05f..1f,
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
-                                },
-                                leadingContent = { Icon(Icons.Filled.DisplaySettings, stringResource(id = R.string.settings_background_opacity)) },
-                                trailingContent = { Text("${(uiState.backgroundOpacity * 100).toInt()}%") }
-                            )
-                        }
-                    }
-                }
-            )
-
             val profileTemplate = stringResource(id = R.string.settings_profile_template)
             KsuIsValid {
                 SegmentedColumn(

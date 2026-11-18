@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.systemBars
@@ -40,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Density
@@ -57,6 +59,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import me.weishu.kernelsu.Natives
+import me.weishu.kernelsu.ui.component.LocalManagerAppearance
+import me.weishu.kernelsu.ui.component.ManagerBackground
 import me.weishu.kernelsu.ui.component.bottombar.BottomBar
 import me.weishu.kernelsu.ui.component.bottombar.MainPagerState
 import me.weishu.kernelsu.ui.component.bottombar.NavigationBadgeState
@@ -173,6 +177,7 @@ class MainActivity : ComponentActivity() {
                 LocalEnableNavigationBadge provides uiState.enableNavigationBadge,
                 LocalModuleDescriptionMaxLines provides uiState.moduleDescriptionMaxLines,
                 LocalUiMode provides uiMode,
+                LocalManagerAppearance provides uiState.appearance,
             ) {
                 KernelSUTheme(appSettings = appSettings, uiMode = uiMode) {
                     IntentDispatcher(intentChannel = intentChannel)
@@ -256,12 +261,32 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    when (uiMode) {
-                        UiMode.Material -> androidx.compose.material3.Scaffold(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainer
-                        ) { navDisplay() }
+                    val hasBackground = uiState.appearance.hasBackground
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        if (hasBackground) {
+                            ManagerBackground(
+                                path = uiState.appearance.backgroundImagePath,
+                                opacity = uiState.appearance.backgroundOpacity,
+                            )
+                        }
 
-                        UiMode.Miuix -> Scaffold { navDisplay() }
+                        when (uiMode) {
+                            UiMode.Material -> androidx.compose.material3.Scaffold(
+                                containerColor = if (hasBackground) {
+                                    Color.Transparent
+                                } else {
+                                    MaterialTheme.colorScheme.surfaceContainer
+                                }
+                            ) { navDisplay() }
+
+                            UiMode.Miuix -> Scaffold(
+                                containerColor = if (hasBackground) {
+                                    Color.Transparent
+                                } else {
+                                    MiuixTheme.colorScheme.surface
+                                }
+                            ) { navDisplay() }
+                        }
                     }
                     SideEffect { contentReady = true }
                 }
@@ -303,6 +328,7 @@ fun MainScreen(
     var userScrollEnabled by remember(isFullFeatured) { mutableStateOf(isFullFeatured) }
 
     val enableNavigationBadge = LocalEnableNavigationBadge.current
+    val hasBackground = LocalManagerAppearance.current.hasBackground
     val badgeEnabled = enableNavigationBadge && isFullFeatured
     val moduleViewModel = viewModel<ModuleViewModel>()
     val moduleUiState by moduleViewModel.uiState.collectAsStateWithLifecycle()
@@ -429,7 +455,11 @@ fun MainScreen(
 
             when (uiMode) {
                 UiMode.Material -> androidx.compose.material3.Scaffold(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                    containerColor = if (hasBackground) {
+                        Color.Transparent
+                    } else {
+                        MaterialTheme.colorScheme.surfaceContainer
+                    }
                 ) {
                     Row {
                         SideRail(navigationBadge)
@@ -443,7 +473,13 @@ fun MainScreen(
                     }
                 }
 
-                UiMode.Miuix -> Scaffold { _ ->
+                UiMode.Miuix -> Scaffold(
+                    containerColor = if (hasBackground) {
+                        Color.Transparent
+                    } else {
+                        MiuixTheme.colorScheme.surface
+                    }
+                ) { _ ->
                     Row {
                         SideRail(navigationBadge)
                         Box(
@@ -473,12 +509,23 @@ fun MainScreen(
             when (uiMode) {
                 UiMode.Material -> androidx.compose.material3.Scaffold(
                     bottomBar = bottomBar,
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                    containerColor = if (hasBackground) {
+                        Color.Transparent
+                    } else {
+                        MaterialTheme.colorScheme.surfaceContainer
+                    }
                 ) { innerPadding ->
                     pagerContent(innerPadding.calculateBottomPadding())
                 }
 
-                UiMode.Miuix -> Scaffold(bottomBar = bottomBar) { innerPadding ->
+                UiMode.Miuix -> Scaffold(
+                    bottomBar = bottomBar,
+                    containerColor = if (hasBackground) {
+                        Color.Transparent
+                    } else {
+                        MiuixTheme.colorScheme.surface
+                    }
+                ) { innerPadding ->
                     pagerContent(innerPadding.calculateBottomPadding())
                 }
             }

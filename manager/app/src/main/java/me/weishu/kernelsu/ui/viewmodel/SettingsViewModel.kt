@@ -95,6 +95,8 @@ class SettingsViewModel(
             val hideVersionMismatch = repo.hideVersionMismatch
             val backgroundImagePath = repo.backgroundImagePath
             val backgroundOpacity = repo.backgroundOpacity
+            val statusText = repo.statusText
+            val statusImagePath = repo.statusImagePath
             val isLateLoadMode = Natives.isLateLoadMode
 
             _uiState.update {
@@ -137,6 +139,8 @@ class SettingsViewModel(
                     hideVersionMismatch = hideVersionMismatch,
                     backgroundImagePath = backgroundImagePath,
                     backgroundOpacity = backgroundOpacity,
+                    statusText = statusText,
+                    statusImagePath = statusImagePath,
                     isLateLoadMode = isLateLoadMode,
                 )
             }
@@ -357,19 +361,24 @@ class SettingsViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             runCatching {
                 val dir = File(ksuApp.filesDir, "background").apply { mkdirs() }
-                val target = File(dir, "manager_bg")
+                // A unique file name makes the new image load instantly instead of reusing
+                // a cached bitmap for the same path.
+                val target = File(dir, "manager_bg_${System.currentTimeMillis()}")
                 val temp = File(dir, "manager_bg.tmp")
                 val input = ksuApp.contentResolver.openInputStream(uri)
                     ?: error("Unable to open background image")
                 input.use { source ->
                     temp.outputStream().use { output -> source.copyTo(output) }
                 }
-                if (target.exists()) target.delete()
                 if (!temp.renameTo(target)) {
                     temp.copyTo(target, overwrite = true)
                     temp.delete()
                 }
+                val oldPath = repo.backgroundImagePath
                 repo.backgroundImagePath = target.absolutePath
+                if (oldPath.isNotEmpty() && oldPath != target.absolutePath) {
+                    runCatching { File(oldPath).delete() }
+                }
                 _uiState.update { it.copy(backgroundImagePath = target.absolutePath) }
             }
         }
@@ -390,6 +399,48 @@ class SettingsViewModel(
         val opacity = value.coerceIn(0.05f, 1f)
         repo.backgroundOpacity = opacity
         _uiState.update { it.copy(backgroundOpacity = opacity) }
+    }
+
+    fun setStatusText(text: String) {
+        repo.statusText = text
+        _uiState.update { it.copy(statusText = text) }
+    }
+
+    fun setStatusImage(uri: Uri?) {
+        if (uri == null) return
+        viewModelScope.launch(Dispatchers.IO) {
+            runCatching {
+                val dir = File(ksuApp.filesDir, "status").apply { mkdirs() }
+                val target = File(dir, "status_${System.currentTimeMillis()}")
+                val temp = File(dir, "status.tmp")
+                val input = ksuApp.contentResolver.openInputStream(uri)
+                    ?: error("Unable to open status image")
+                input.use { source ->
+                    temp.outputStream().use { output -> source.copyTo(output) }
+                }
+                if (!temp.renameTo(target)) {
+                    temp.copyTo(target, overwrite = true)
+                    temp.delete()
+                }
+                val oldPath = repo.statusImagePath
+                repo.statusImagePath = target.absolutePath
+                if (oldPath.isNotEmpty() && oldPath != target.absolutePath) {
+                    runCatching { File(oldPath).delete() }
+                }
+                _uiState.update { it.copy(statusImagePath = target.absolutePath) }
+            }
+        }
+    }
+
+    fun removeStatusImage() {
+        viewModelScope.launch(Dispatchers.IO) {
+            runCatching {
+                val path = repo.statusImagePath
+                if (path.isNotEmpty()) File(path).delete()
+                repo.statusImagePath = ""
+                _uiState.update { it.copy(statusImagePath = "") }
+            }
+        }
     }
 
     fun setSulogEnabled(enabled: Boolean) {

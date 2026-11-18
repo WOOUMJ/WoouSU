@@ -12,6 +12,7 @@ import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import me.weishu.kernelsu.ui.component.LocalManagerAppearance
 
 @Composable
 fun ExpressiveScaffold(
@@ -21,7 +22,11 @@ fun ExpressiveScaffold(
     snackbarHost: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
     floatingActionButtonPosition: FabPosition = FabPosition.End,
-    containerColor: Color = MaterialTheme.colorScheme.surfaceContainer,
+    containerColor: Color = if (LocalManagerAppearance.current.hasBackground) {
+        Color.Transparent
+    } else {
+        MaterialTheme.colorScheme.surfaceContainer
+    },
     contentColor: Color = contentColorFor(containerColor),
     contentWindowInsets: WindowInsets = ScaffoldDefaults.contentWindowInsets,
     content: @Composable (PaddingValues) -> Unit,
@@ -34,7 +39,11 @@ fun ExpressiveScaffold(
         floatingActionButton = floatingActionButton,
         floatingActionButtonPosition = floatingActionButtonPosition,
         containerColor = containerColor,
-        contentColor = contentColor,
+        contentColor = if (containerColor == Color.Transparent) {
+            MaterialTheme.colorScheme.onSurface
+        } else {
+            contentColor
+        },
         contentWindowInsets = contentWindowInsets,
         content = content,
     )
@@ -42,7 +51,11 @@ fun ExpressiveScaffold(
 
 @Composable
 fun expressiveTopAppBarColors(
-    containerColor: Color = MaterialTheme.colorScheme.surfaceContainer,
+    containerColor: Color = if (LocalManagerAppearance.current.hasBackground) {
+        Color.Transparent
+    } else {
+        MaterialTheme.colorScheme.surfaceContainer
+    },
     scrolledContainerColor: Color = containerColor,
 ): TopAppBarColors = TopAppBarDefaults.topAppBarColors(
     containerColor = containerColor,
