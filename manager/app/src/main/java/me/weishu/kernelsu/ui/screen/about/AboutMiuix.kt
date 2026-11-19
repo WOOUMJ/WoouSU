@@ -23,6 +23,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import me.weishu.kernelsu.R
 import top.yukonga.miuix.kmp.basic.Card
+import me.weishu.kernelsu.ui.component.miuix.managerCardColors
+import me.weishu.kernelsu.ui.component.miuix.managerScreenBarColor
+import me.weishu.kernelsu.ui.component.miuix.managerScreenContainerColor
+import top.yukonga.miuix.kmp.basic.CardDefaults
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
@@ -42,6 +46,7 @@ fun AboutScreenMiuix(
     val topAppBarScrollBehavior = MiuixScrollBehavior()
 
     Scaffold(
+        containerColor = managerScreenContainerColor(),
         topBar = {
             SmallTopAppBar(
                 title = state.title,
@@ -89,6 +94,7 @@ fun AboutScreenMiuix(
                 modifier = Modifier.padding(top = 4.dp, bottom = 24.dp),
             )
             Card(
+                colors = managerCardColors(),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 12.dp),

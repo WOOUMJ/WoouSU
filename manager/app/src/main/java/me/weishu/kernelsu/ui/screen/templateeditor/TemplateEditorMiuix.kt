@@ -36,6 +36,10 @@ import me.weishu.kernelsu.ui.theme.LocalEnableBlur
 import me.weishu.kernelsu.ui.util.BlurredBar
 import me.weishu.kernelsu.ui.util.rememberBlurBackdrop
 import top.yukonga.miuix.kmp.basic.Card
+import me.weishu.kernelsu.ui.component.miuix.managerCardColors
+import me.weishu.kernelsu.ui.component.miuix.managerScreenBarColor
+import me.weishu.kernelsu.ui.component.miuix.managerScreenContainerColor
+import top.yukonga.miuix.kmp.basic.CardDefaults
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
@@ -65,9 +69,10 @@ fun TemplateEditorScreenMiuix(
     val enableBlur = LocalEnableBlur.current
     val backdrop = rememberBlurBackdrop(enableBlur)
     val blurActive = backdrop != null
-    val barColor = if (blurActive) Color.Transparent else colorScheme.surface
+    val barColor = managerScreenBarColor(blurActive)
 
     Scaffold(
+        containerColor = managerScreenContainerColor(),
         topBar = {
             TopBar(
                 title = if (state.isCreation) {
@@ -102,6 +107,7 @@ fun TemplateEditorScreenMiuix(
             ) {
                 item {
                     Card(
+                        colors = managerCardColors(),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(12.dp),

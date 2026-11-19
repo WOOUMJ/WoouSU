@@ -48,6 +48,10 @@ import me.weishu.kernelsu.ui.util.rememberBlurBackdrop
 import top.yukonga.miuix.kmp.basic.BasicComponent
 import top.yukonga.miuix.kmp.basic.ButtonDefaults
 import top.yukonga.miuix.kmp.basic.Card
+import me.weishu.kernelsu.ui.component.miuix.managerCardColors
+import me.weishu.kernelsu.ui.component.miuix.managerScreenBarColor
+import me.weishu.kernelsu.ui.component.miuix.managerScreenContainerColor
+import top.yukonga.miuix.kmp.basic.CardDefaults
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
@@ -87,9 +91,10 @@ internal fun InstallScreenMiuix(
     val scrollBehavior = MiuixScrollBehavior()
     val backdrop = rememberBlurBackdrop(enableBlur)
     val blurActive = backdrop != null
-    val barColor = if (blurActive) Color.Transparent else colorScheme.surface
+    val barColor = managerScreenBarColor(blurActive)
 
     Scaffold(
+        containerColor = managerScreenContainerColor(),
         topBar = {
             TopBar(
                 onBack = actions.onBack,
@@ -121,6 +126,7 @@ internal fun InstallScreenMiuix(
             ) {
                 item {
                     Card(
+                        colors = managerCardColors(),
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         SelectInstallMethod(
@@ -147,6 +153,7 @@ internal fun InstallScreenMiuix(
                             uiState.partitionSelectionIndex
                         }
                         Card(
+                            colors = managerCardColors(),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = 12.dp),
@@ -177,6 +184,7 @@ internal fun InstallScreenMiuix(
                         exit = shrinkVertically()
                     ) {
                         Card(
+                            colors = managerCardColors(),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = 12.dp),
@@ -190,6 +198,7 @@ internal fun InstallScreenMiuix(
                         }
                     }
                     Card(
+                        colors = managerCardColors(),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 12.dp),
@@ -236,6 +245,7 @@ internal fun InstallScreenMiuix(
                         )
                     }
                     Card(
+                        colors = managerCardColors(),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 12.dp),

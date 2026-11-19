@@ -98,6 +98,10 @@ import me.weishu.kernelsu.ui.util.isDownloadAvailable
 import me.weishu.kernelsu.ui.util.rememberBlurBackdrop
 import me.weishu.kernelsu.ui.util.rememberContentReady
 import top.yukonga.miuix.kmp.basic.Card
+import me.weishu.kernelsu.ui.component.miuix.managerCardColors
+import me.weishu.kernelsu.ui.component.miuix.managerScreenBarColor
+import me.weishu.kernelsu.ui.component.miuix.managerScreenContainerColor
+import top.yukonga.miuix.kmp.basic.CardDefaults
 import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
 import top.yukonga.miuix.kmp.basic.DropdownImpl
 import top.yukonga.miuix.kmp.basic.HorizontalDivider
@@ -157,9 +161,10 @@ fun ModuleRepoScreenMiuix(
     val enableBlur = LocalEnableBlur.current
     val backdrop = rememberBlurBackdrop(enableBlur)
     val blurActive = backdrop != null
-    val barColor = if (blurActive) Color.Transparent else colorScheme.surface
+    val barColor = managerScreenBarColor(blurActive)
 
     Scaffold(
+        containerColor = managerScreenContainerColor(),
         topBar = {
             BlurredBar(backdrop) {
                 searchStatus.TopAppBarAnim(backgroundColor = barColor) {
@@ -265,6 +270,7 @@ fun ModuleRepoScreenMiuix(
                     }
                     items(state.searchResults, key = { it.moduleId }, contentType = { "module" }) { module ->
                         Card(
+                            colors = managerCardColors(),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 12.dp)
@@ -429,6 +435,7 @@ fun ModuleRepoScreenMiuix(
                                 val moduleAuthor = stringResource(id = R.string.module_author)
 
                                 Card(
+                                    colors = managerCardColors(),
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(horizontal = 12.dp)
@@ -832,6 +839,7 @@ fun ReleasesPage(
             }
             items(items = detail.releases, key = { "release_${it.tag}" }, contentType = { "release" }) { rel ->
                 Card(
+                    colors = managerCardColors(),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 12.dp)
@@ -1108,6 +1116,7 @@ private fun InfoCardMiuix(title: String, rows: List<@Composable () -> Unit>) {
     if (rows.isEmpty()) return
     SmallTitle(text = title, modifier = Modifier.padding(top = 6.dp))
     Card(
+        colors = managerCardColors(),
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp)
@@ -1320,6 +1329,7 @@ fun ModuleRepoDetailScreenMiuix(
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
+        containerColor = managerScreenContainerColor(),
         topBar = {
             BlurredBar(backdrop) {
                 TopAppBar(

@@ -54,6 +54,10 @@ import me.weishu.kernelsu.ui.util.rememberShellHighlight
 import top.yukonga.miuix.kmp.basic.BasicComponent
 import top.yukonga.miuix.kmp.basic.ButtonDefaults
 import top.yukonga.miuix.kmp.basic.Card
+import me.weishu.kernelsu.ui.component.miuix.managerCardColors
+import me.weishu.kernelsu.ui.component.miuix.managerScreenBarColor
+import me.weishu.kernelsu.ui.component.miuix.managerScreenContainerColor
+import top.yukonga.miuix.kmp.basic.CardDefaults
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.InfiniteProgressIndicator
@@ -84,9 +88,10 @@ internal fun ScriptRunScreenMiuix(
     val enableBlur = LocalEnableBlur.current
     val scrollBehavior = MiuixScrollBehavior()
     val backdrop = rememberBlurBackdrop(enableBlur)
-    val barColor = if (backdrop != null) Color.Transparent else colorScheme.surface
+    val barColor = managerScreenBarColor(backdrop != null)
 
     Scaffold(
+        containerColor = managerScreenContainerColor(),
         topBar = {
             TopBar(
                 onBack = actions.onBack,
@@ -127,7 +132,7 @@ internal fun ScriptRunScreenMiuix(
             ) {
                 item {
                     if (prepared == null) {
-                        Card(modifier = Modifier.fillMaxWidth()) {
+                        Card(modifier = Modifier.fillMaxWidth(), colors = managerCardColors()) {
                             BasicComponent(
                                 title = stringResource(R.string.script_error_title),
                                 summary = state.error,
@@ -164,7 +169,7 @@ internal fun ScriptRunScreenMiuix(
 private fun ScriptInfoMiuix(state: ScriptRunUiState, prepared: PreparedScript, actions: ScriptRunActions) {
     val context = LocalContext.current
     val manifest = prepared.manifest
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(modifier = Modifier.fillMaxWidth(), colors = managerCardColors()) {
         BasicComponent(
             title = manifest.name,
             summary = buildString {
@@ -187,6 +192,7 @@ private fun ScriptInfoMiuix(state: ScriptRunUiState, prepared: PreparedScript, a
 @Composable
 private fun InstallAnywayCardMiuix(actions: ScriptRunActions) {
     Card(
+        colors = managerCardColors(),
         modifier = Modifier
             .padding(top = 12.dp)
             .fillMaxWidth()
@@ -207,7 +213,7 @@ private fun ParamsFormMiuix(state: ScriptRunUiState, prepared: PreparedScript, a
     val params = prepared.params.params
     if (params.isEmpty()) return
     SmallTitle(text = stringResource(R.string.script_params), modifier = Modifier.padding(top = 6.dp))
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(modifier = Modifier.fillMaxWidth(), colors = managerCardColors()) {
         params.forEach { param ->
             val value = state.values[param.key] ?: param.defaultValue
             val error = state.errors[param.key]
@@ -250,6 +256,7 @@ private fun ParamsFormMiuix(state: ScriptRunUiState, prepared: PreparedScript, a
 private fun SourceSectionMiuix(prepared: PreparedScript) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     Card(
+        colors = managerCardColors(),
         modifier = Modifier
             .padding(top = 12.dp)
             .fillMaxWidth()

@@ -371,7 +371,7 @@ fun ColorPaletteScreenMaterial(
 
                 item {
                     TonalCard(modifier = Modifier.padding(horizontal = 16.dp)) {
-                        val uiSliderState = rememberSliderState(
+                        val uiSliderState = rememberStableSliderState(
                             value = uiState.uiOpacity,
                             trackRange = 0.05f..1f
                         )
@@ -415,7 +415,7 @@ fun ColorPaletteScreenMaterial(
 
             item {
                 TonalCard(modifier = Modifier.padding(horizontal = 16.dp)) {
-                    val cardScaleState = rememberSliderState(
+                    val cardScaleState = rememberStableSliderState(
                         value = uiState.statusCardScale,
                         trackRange = 0.7f..3f
                     )
@@ -970,7 +970,7 @@ private fun rememberStableSliderState(
         trackRange = trackRange,
     )
     LaunchedEffect(value) {
-        if (sliderState.value != value) sliderState.value = value
+        if (!sliderState.isDragging && sliderState.value != value) sliderState.value = value
     }
     return sliderState
 }
