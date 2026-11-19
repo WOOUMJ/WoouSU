@@ -33,7 +33,7 @@ A **KernelSU-based, kernel-level root solution for Android**, with optional SUSF
 
 ## Installation
 
-The manager can be downloaded as an APK from Releases, or built from source (see [Building](#building)). Its package name is com.woousu.wo; it is not compatible with the upstream KernelSU manager or with managers from other forks, so install only one.
+The manager can be downloaded as an APK from Releases, or built from source (see [Building](#building)). Its package name is com.woousu.wo; 
 
 ### Requirements
 
