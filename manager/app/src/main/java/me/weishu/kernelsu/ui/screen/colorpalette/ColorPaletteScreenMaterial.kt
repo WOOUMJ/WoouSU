@@ -79,6 +79,8 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.material3.SliderState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -326,7 +328,7 @@ fun ColorPaletteScreenMaterial(
             if (uiState.backgroundImagePath.isNotEmpty()) {
                 item {
                     TonalCard(modifier = Modifier.padding(horizontal = 16.dp)) {
-                        val sliderState = rememberSliderState(
+                        val sliderState = rememberStableSliderState(
                             value = uiState.backgroundOpacity,
                             trackRange = 0.05f..1f
                         )
@@ -412,6 +414,49 @@ fun ColorPaletteScreenMaterial(
             }
 
             item {
+                TonalCard(modifier = Modifier.padding(horizontal = 16.dp)) {
+                    val cardScaleState = rememberSliderState(
+                        value = uiState.statusCardScale,
+                        trackRange = 0.7f..3f
+                    )
+
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                Icons.Rounded.AspectRatio,
+                                contentDescription = stringResource(id = R.string.settings_status_card_scale),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(
+                                text = stringResource(R.string.settings_status_card_scale),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Text(
+                                text = "${(cardScaleState.value * 100).toInt()}%",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+
+                        Slider(
+                            state = cardScaleState,
+                            onValueChange = { actions.onSetStatusCardScale(it) },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+            }
+
+            item {
                 SegmentedColumn(
                     modifier = Modifier.padding(horizontal = 16.dp),
                     content = buildList {
@@ -461,6 +506,15 @@ fun ColorPaletteScreenMaterial(
                                 trailingContent = {
                                     Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
                                 }
+                            )
+                        }
+                        add {
+                            SegmentedSwitchItem(
+                                icon = Icons.Rounded.Check,
+                                title = stringResource(id = R.string.settings_status_show_icon),
+                                summary = stringResource(id = R.string.settings_status_show_icon_summary),
+                                checked = uiState.statusCardShowIcon,
+                                onCheckedChange = actions.onSetStatusCardShowIcon
                             )
                         }
                     }
@@ -535,7 +589,7 @@ fun ColorPaletteScreenMaterial(
 
             item {
                 TonalCard(modifier = Modifier.padding(horizontal = 16.dp)) {
-                    val sliderState = rememberSliderState(
+                    val sliderState = rememberStableSliderState(
                         value = uiState.pageScale,
                         trackRange = 0.8f..1.1f
                     )
@@ -586,7 +640,7 @@ fun ColorPaletteScreenMaterial(
 
             item {
                 TonalCard(modifier = Modifier.padding(horizontal = 16.dp)) {
-                    val sliderState = rememberSliderState(
+                    val sliderState = rememberStableSliderState(
                         value = uiState.moduleDescriptionMaxLines.toFloat(),
                         steps = 3,
                         trackRange = 1f..5f
@@ -897,4 +951,26 @@ private fun ColorButtonMaterial(
             }
         }
     }
+}
+
+/**
+ * `rememberSliderState` uses the passed value as a remember key, so feeding it the
+ * live settings value recreates the state on every drag tick and breaks the drag
+ * animation. Keep the initial value stable and only sync external updates.
+ */
+@Composable
+private fun rememberStableSliderState(
+    value: Float,
+    trackRange: ClosedFloatingPointRange<Float>,
+    steps: Int = 0,
+): SliderState {
+    val sliderState = rememberSliderState(
+        value = remember { value },
+        steps = steps,
+        trackRange = trackRange,
+    )
+    LaunchedEffect(value) {
+        if (sliderState.value != value) sliderState.value = value
+    }
+    return sliderState
 }

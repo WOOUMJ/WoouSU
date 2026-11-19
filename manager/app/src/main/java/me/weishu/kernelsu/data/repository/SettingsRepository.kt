@@ -38,6 +38,8 @@ interface SettingsRepository {
     var uiOpacity: Float
     var statusText: String
     var statusImagePath: String
+    var statusCardScale: Float
+    var statusCardShowIcon: Boolean
     val intentToken: String
 
     /** Export all settings (including custom images) into a zip archive at [uri]. */

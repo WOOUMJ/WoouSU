@@ -47,6 +47,7 @@ import me.weishu.kernelsu.ui.UiMode
 import me.weishu.kernelsu.ui.component.KsuIsValid
 import me.weishu.kernelsu.ui.component.LocalManagerAppearance
 import me.weishu.kernelsu.ui.component.dialog.rememberLoadingDialog
+import me.weishu.kernelsu.ui.component.miuix.ManagerSwitchPreference
 import me.weishu.kernelsu.ui.component.miuix.SendLogDialog
 import me.weishu.kernelsu.ui.component.uninstalldialog.UninstallDialog
 import me.weishu.kernelsu.ui.component.managerBlockColor
@@ -124,7 +125,7 @@ fun SettingPagerMiuix(
                             color = managerBlockColor(colorScheme.surfaceContainer)
                         ),
                     ) {
-                        SwitchPreference(
+                        ManagerSwitchPreference(
                             title = stringResource(id = R.string.settings_check_update),
                             summary = stringResource(id = R.string.settings_check_update_summary),
                             startAction = {
@@ -139,7 +140,7 @@ fun SettingPagerMiuix(
                             onCheckedChange = actions.onSetCheckUpdate
                         )
                         KsuIsValid {
-                            SwitchPreference(
+                            ManagerSwitchPreference(
                                 title = stringResource(id = R.string.settings_module_check_update),
                                 summary = stringResource(id = R.string.settings_check_update_summary),
                                 startAction = {
@@ -154,7 +155,7 @@ fun SettingPagerMiuix(
                                 onCheckedChange = actions.onSetCheckModuleUpdate
                             )
                         }
-                        SwitchPreference(
+                        ManagerSwitchPreference(
                             title = stringResource(id = R.string.settings_hide_version_mismatch),
                             summary = stringResource(id = R.string.settings_hide_version_mismatch_summary),
                             startAction = {
@@ -304,7 +305,7 @@ fun SettingPagerMiuix(
                                 "forced" -> stringResource(id = R.string.feature_status_forced_summary)
                                 else -> stringResource(id = R.string.settings_kernel_umount_summary)
                             }
-                            SwitchPreference(
+                            ManagerSwitchPreference(
                                 title = stringResource(id = R.string.settings_kernel_umount),
                                 summary = umountSummary,
                                 startAction = {
@@ -326,7 +327,7 @@ fun SettingPagerMiuix(
                                 "forced" -> stringResource(id = R.string.feature_status_forced_summary)
                                 else -> stringResource(id = R.string.settings_selinux_hide_summary)
                             }
-                            SwitchPreference(
+                            ManagerSwitchPreference(
                                 title = stringResource(id = R.string.settings_selinux_hide),
                                 summary = selinuxHideSummary,
                                 startAction = {
@@ -348,7 +349,7 @@ fun SettingPagerMiuix(
                                 "forced" -> stringResource(id = R.string.feature_status_forced_summary)
                                 else -> stringResource(id = R.string.settings_sulog_summary)
                             }
-                            SwitchPreference(
+                            ManagerSwitchPreference(
                                 title = stringResource(id = R.string.settings_sulog),
                                 summary = sulogSummary,
                                 startAction = {
@@ -370,7 +371,7 @@ fun SettingPagerMiuix(
                                 "forced" -> stringResource(id = R.string.feature_status_forced_summary)
                                 else -> stringResource(id = R.string.settings_adb_root_summary)
                             }
-                            SwitchPreference(
+                            ManagerSwitchPreference(
                                 title = stringResource(id = R.string.settings_adb_root),
                                 summary = adbRootSummary,
                                 startAction = {
@@ -392,7 +393,7 @@ fun SettingPagerMiuix(
                                 "forced" -> stringResource(id = R.string.feature_status_forced_summary)
                                 else -> stringResource(id = R.string.settings_shell_su_adb_only_summary)
                             }
-                            SwitchPreference(
+                            ManagerSwitchPreference(
                                 title = stringResource(id = R.string.settings_shell_su_adb_only),
                                 summary = shellSuAdbOnlySummary,
                                 startAction = {
@@ -407,7 +408,7 @@ fun SettingPagerMiuix(
                                 checked = uiState.isShellSuAdbOnlyEnabled,
                                 onCheckedChange = actions.onSetShellSuAdbOnlyEnabled
                             )
-                            SwitchPreference(
+                            ManagerSwitchPreference(
                                 title = stringResource(id = R.string.settings_soft_reboot),
                                 summary = stringResource(id = R.string.settings_soft_reboot_summary),
                                 startAction = {
@@ -432,7 +433,7 @@ fun SettingPagerMiuix(
                                 color = managerBlockColor(colorScheme.surfaceContainer)
                             ),
                         ) {
-                            SwitchPreference(
+                            ManagerSwitchPreference(
                                 title = stringResource(id = R.string.settings_umount_modules_default),
                                 summary = stringResource(id = R.string.settings_umount_modules_default_summary),
                                 startAction = {
@@ -447,7 +448,7 @@ fun SettingPagerMiuix(
                                 onCheckedChange = actions.onSetDefaultUmountModules
                             )
 
-                            SwitchPreference(
+                            ManagerSwitchPreference(
                                 title = stringResource(id = R.string.enable_web_debugging),
                                 summary = stringResource(id = R.string.enable_web_debugging_summary),
                                 startAction = {
@@ -461,7 +462,7 @@ fun SettingPagerMiuix(
                                 checked = uiState.enableWebDebugging,
                                 onCheckedChange = actions.onSetEnableWebDebugging
                             )
-                            SwitchPreference(
+                            ManagerSwitchPreference(
                                 title = stringResource(id = R.string.settings_auto_jailbreak),
                                 summary = stringResource(id = R.string.settings_auto_jailbreak_summary),
                                 startAction = {

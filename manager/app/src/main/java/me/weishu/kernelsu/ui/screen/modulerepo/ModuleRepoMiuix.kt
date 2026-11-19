@@ -77,8 +77,10 @@ import me.weishu.kernelsu.R
 import me.weishu.kernelsu.data.model.RepoModule
 import me.weishu.kernelsu.data.model.RepoRelease
 import me.weishu.kernelsu.ui.component.ListPopupDefaults
+import me.weishu.kernelsu.ui.component.LocalManagerAppearance
 import me.weishu.kernelsu.ui.component.ScrollToTopOnChange
 import me.weishu.kernelsu.ui.component.SearchStatus
+import me.weishu.kernelsu.ui.component.managerBlockColor
 import me.weishu.kernelsu.ui.component.dialog.ConfirmDialogHandle
 import me.weishu.kernelsu.ui.component.dialog.rememberConfirmDialog
 import me.weishu.kernelsu.ui.component.markdown.GithubMarkdown
@@ -1364,7 +1366,12 @@ fun ModuleRepoDetailScreenMiuix(
                                     }
                                 },
                                 colors = TabRowDefaults.tabRowColors(
-                                    backgroundColor = if (blurActive) Color.Transparent else colorScheme.surface
+                                    backgroundColor = if (blurActive || LocalManagerAppearance.current.hasBackground) {
+                                        Color.Transparent
+                                    } else {
+                                        colorScheme.surface
+                                    },
+                                    selectedBackgroundColor = managerBlockColor(colorScheme.surfaceContainer),
                                 ),
                                 height = tabRowHeight,
                             )

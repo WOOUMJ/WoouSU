@@ -62,6 +62,8 @@ class MainActivityViewModel(
                 hideVersionMismatch = settingRepo.hideVersionMismatch,
                 statusText = settingRepo.statusText,
                 statusImagePath = settingRepo.statusImagePath,
+                statusCardScale = settingRepo.statusCardScale,
+                statusCardShowIcon = settingRepo.statusCardShowIcon,
             ),
         )
     }
@@ -87,6 +89,8 @@ class MainActivityViewModel(
             "hide_version_mismatch",
             "status_text",
             "status_image_path",
+            "status_card_scale",
+            "status_card_show_icon",
         )
     }
 }

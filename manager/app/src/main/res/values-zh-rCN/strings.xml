@@ -180,6 +180,10 @@
     <string name="settings_status_text_default">默认：工作中</string>
     <string name="settings_status_text_dialog_title">自定义状态文字</string>
     <string name="settings_status_text_hint">留空则使用默认文字</string>
+    <string name="settings_status_card_scale">状态卡片大小</string>
+    <string name="settings_status_card_scale_summary">调整「工作中」状态卡片的显示大小</string>
+    <string name="settings_status_show_icon">显示对勾圆圈</string>
+    <string name="settings_status_show_icon_summary">设置卡片背景图时，显示卡片右下方的对勾与圆圈</string>
     <string name="settings_enable_predictive_back">预测性返回手势</string>
     <string name="settings_enable_predictive_back_summary">启用对预测性返回手势的支持</string>
     <string name="settings_enable_swipe_dismiss">横移返回手势</string>

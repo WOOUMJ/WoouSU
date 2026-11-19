@@ -928,6 +928,9 @@ private fun ModuleItem(
                             enabled = !module.remove,
                             onClick = onUpdate,
                             shape = ButtonDefaults.textShape,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = managerBlockColor(MaterialTheme.colorScheme.primary),
+                            ),
                             contentPadding = ButtonDefaults.TextButtonContentPadding
                         ) {
                             Icon(
@@ -952,6 +955,9 @@ private fun ModuleItem(
                 FilledTonalButton(
                     modifier = Modifier.defaultMinSize(52.dp, 32.dp),
                     onClick = onUninstallClicked,
+                    colors = ButtonDefaults.filledTonalButtonColors(
+                        containerColor = managerBlockColor(MaterialTheme.colorScheme.secondaryContainer),
+                    ),
                     contentPadding = ButtonDefaults.TextButtonContentPadding
                 ) {
                     if (!module.remove) {

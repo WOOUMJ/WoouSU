@@ -36,6 +36,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -97,7 +98,9 @@ import me.weishu.kernelsu.ui.theme.LocalEnableNavigationBadge
 import me.weishu.kernelsu.ui.theme.LocalModuleDescriptionMaxLines
 import me.weishu.kernelsu.ui.util.getSuperuserCount
 import me.weishu.kernelsu.ui.util.install
+import me.weishu.kernelsu.ui.util.drawCroppedBackground
 import me.weishu.kernelsu.ui.util.rememberBlurBackdrop
+import me.weishu.kernelsu.ui.util.rememberManagerBackgroundBitmap
 import me.weishu.kernelsu.ui.util.rememberContentReady
 import me.weishu.kernelsu.ui.viewmodel.MainActivityViewModel
 import me.weishu.kernelsu.ui.viewmodel.MainPagerConfig
@@ -387,10 +390,20 @@ fun MainScreen(
         UiMode.Material -> MaterialTheme.colorScheme.surface // Blur is not used in Material, this is just a placeholder
         UiMode.Miuix -> MiuixTheme.colorScheme.surface
     }
-    val blurBackdrop = rememberBlurBackdrop(enableBlur)
+    // Include the wallpaper in the captured layers so the liquid glass bottom bar
+    // samples it (blurred) instead of a flat opaque surface.
+    val backgroundBitmap = rememberManagerBackgroundBitmap()
+    val backgroundAlphaState = rememberUpdatedState(LocalManagerAppearance.current.backgroundOpacity)
+    val backgroundBitmapState = rememberUpdatedState(backgroundBitmap)
+    val blurBackdrop = rememberBlurBackdrop(enableBlur, backgroundBitmap)
 
     val backdrop = rememberLayerBackdrop {
-        drawRect(surfaceColor)
+        val bitmap = backgroundBitmapState.value
+        if (bitmap != null) {
+            drawCroppedBackground(bitmap, backgroundAlphaState.value)
+        } else {
+            drawRect(surfaceColor)
+        }
         drawContent()
     }
 

@@ -98,6 +98,8 @@ class SettingsViewModel(
             val uiOpacity = repo.uiOpacity
             val statusText = repo.statusText
             val statusImagePath = repo.statusImagePath
+            val statusCardScale = repo.statusCardScale
+            val statusCardShowIcon = repo.statusCardShowIcon
             val isLateLoadMode = Natives.isLateLoadMode
 
             _uiState.update {
@@ -143,6 +145,8 @@ class SettingsViewModel(
                     uiOpacity = uiOpacity,
                     statusText = statusText,
                     statusImagePath = statusImagePath,
+                    statusCardScale = statusCardScale,
+                    statusCardShowIcon = statusCardShowIcon,
                     isLateLoadMode = isLateLoadMode,
                 )
             }
@@ -407,6 +411,17 @@ class SettingsViewModel(
         val opacity = value.coerceIn(0.05f, 1f)
         repo.uiOpacity = opacity
         _uiState.update { it.copy(uiOpacity = opacity) }
+    }
+
+    fun setStatusCardScale(value: Float) {
+        val scale = value.coerceIn(0.7f, 3f)
+        repo.statusCardScale = scale
+        _uiState.update { it.copy(statusCardScale = scale) }
+    }
+
+    fun setStatusCardShowIcon(show: Boolean) {
+        repo.statusCardShowIcon = show
+        _uiState.update { it.copy(statusCardShowIcon = show) }
     }
 
     fun exportConfig(uri: Uri?) {
