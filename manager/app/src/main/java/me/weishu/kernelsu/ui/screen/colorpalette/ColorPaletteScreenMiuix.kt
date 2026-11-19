@@ -42,6 +42,7 @@ import androidx.compose.material.icons.rounded.Description
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.DesignServices
 import androidx.compose.material.icons.rounded.Image
+import androidx.compose.material.icons.rounded.LayersClear
 import androidx.compose.material.icons.rounded.Pin
 import androidx.compose.material.icons.rounded.Style
 import androidx.compose.material.icons.rounded.TextFields
@@ -76,6 +77,7 @@ import com.materialkolor.rememberDynamicColorScheme
 import me.weishu.kernelsu.R
 import me.weishu.kernelsu.ui.component.LocalManagerAppearance
 import me.weishu.kernelsu.ui.component.bottombar.useNavigationRail
+import me.weishu.kernelsu.ui.component.managerBlockColor
 import me.weishu.kernelsu.ui.component.miuix.ScaleDialog
 import me.weishu.kernelsu.ui.theme.LocalEnableBlur
 import me.weishu.kernelsu.ui.theme.keyColorOptions
@@ -84,6 +86,7 @@ import me.weishu.kernelsu.ui.util.rememberBlurBackdrop
 import top.yukonga.miuix.kmp.basic.BasicComponent
 import top.yukonga.miuix.kmp.basic.ButtonDefaults
 import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.CardDefaults
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
@@ -195,6 +198,9 @@ fun ColorPaletteScreenMiuix(
                         modifier = Modifier
                             .padding(top = 12.dp)
                             .fillMaxWidth(),
+                        colors = CardDefaults.defaultColors(
+                            color = managerBlockColor(colorScheme.surfaceContainer)
+                        ),
                     ) {
                         SwitchPreference(
                             title = stringResource(id = R.string.settings_monet),
@@ -301,6 +307,9 @@ fun ColorPaletteScreenMiuix(
                         modifier = Modifier
                             .padding(top = 12.dp)
                             .fillMaxWidth(),
+                        colors = CardDefaults.defaultColors(
+                            color = managerBlockColor(colorScheme.surfaceContainer)
+                        ),
                     ) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                             SwitchPreference(
@@ -376,6 +385,9 @@ fun ColorPaletteScreenMiuix(
                         modifier = Modifier
                             .padding(top = 12.dp)
                             .fillMaxWidth(),
+                        colors = CardDefaults.defaultColors(
+                            color = managerBlockColor(colorScheme.surfaceContainer)
+                        ),
                     ) {
                         ArrowPreference(
                             title = stringResource(id = R.string.settings_background_pick),
@@ -437,6 +449,37 @@ fun ColorPaletteScreenMiuix(
                                     )
                                 }
                             )
+                            var uiOpacityValue by remember(uiState.uiOpacity) {
+                                mutableFloatStateOf(uiState.uiOpacity)
+                            }
+                            BasicComponent(
+                                title = stringResource(id = R.string.settings_ui_opacity),
+                                summary = stringResource(id = R.string.settings_ui_opacity_summary),
+                                startAction = {
+                                    Icon(
+                                        Icons.Rounded.LayersClear,
+                                        modifier = Modifier.padding(end = 6.dp),
+                                        contentDescription = stringResource(id = R.string.settings_ui_opacity),
+                                        tint = colorScheme.onBackground
+                                    )
+                                },
+                                endActions = {
+                                    Text(
+                                        text = "${(uiOpacityValue * 100).toInt()}%",
+                                        color = colorScheme.onSurfaceVariantActions,
+                                    )
+                                },
+                                bottomAction = {
+                                    Slider(
+                                        value = uiOpacityValue,
+                                        onValueChange = {
+                                            uiOpacityValue = it
+                                            actions.onSetUiOpacity(it)
+                                        },
+                                        valueRange = 0.05f..1f,
+                                    )
+                                }
+                            )
                         }
                     }
 
@@ -444,6 +487,9 @@ fun ColorPaletteScreenMiuix(
                         modifier = Modifier
                             .padding(top = 12.dp)
                             .fillMaxWidth(),
+                        colors = CardDefaults.defaultColors(
+                            color = managerBlockColor(colorScheme.surfaceContainer)
+                        ),
                     ) {
                         ArrowPreference(
                             title = stringResource(id = R.string.settings_status_image_pick),
@@ -500,6 +546,9 @@ fun ColorPaletteScreenMiuix(
                         modifier = Modifier
                             .padding(top = 12.dp)
                             .fillMaxWidth(),
+                        colors = CardDefaults.defaultColors(
+                            color = managerBlockColor(colorScheme.surfaceContainer)
+                        ),
                     ) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                             SwitchPreference(
@@ -603,6 +652,9 @@ fun ColorPaletteScreenMiuix(
                         modifier = Modifier
                             .padding(top = 12.dp)
                             .fillMaxWidth(),
+                        colors = CardDefaults.defaultColors(
+                            color = managerBlockColor(colorScheme.surfaceContainer)
+                        ),
                     ) {
                         var linesValue by remember(uiState.moduleDescriptionMaxLines) { mutableIntStateOf(uiState.moduleDescriptionMaxLines) }
                         BasicComponent(

@@ -44,6 +44,14 @@ fun SettingPager(
         onPauseOrDispose { }
     }
 
+    val exportConfigLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("application/zip")
+    ) { uri -> viewModel.exportConfig(uri) }
+
+    val importConfigLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri -> viewModel.importConfig(uri) }
+
     val actions = SettingsScreenActions(
         onSetCheckUpdate = viewModel::setCheckUpdate,
         onSetCheckModuleUpdate = viewModel::setCheckModuleUpdate,
@@ -63,6 +71,9 @@ fun SettingPager(
         onSetAutoJailbreak = viewModel::setAutoJailbreak,
         onSetUseSoftReboot = viewModel::setUseSoftReboot,
         onSetHideVersionMismatch = viewModel::setHideVersionMismatch,
+        onExportConfig = { exportConfigLauncher.launch("WoouSU_Config.zip") },
+        onImportConfig = { importConfigLauncher.launch(arrayOf("application/zip", "application/octet-stream")) },
+
         onOpenAbout = { navigator.push(Route.About) },
     )
 

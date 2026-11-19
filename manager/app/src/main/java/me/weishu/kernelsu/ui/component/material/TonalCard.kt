@@ -14,13 +14,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import me.weishu.kernelsu.ui.component.managerBlockColor
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TonalCard(
     modifier: Modifier = Modifier,
-    containerColor: Color = MaterialTheme.colorScheme.surfaceBright,
-    contentColor: Color = contentColorFor(containerColor),
+    containerColor: Color = Color.Unspecified,
+    contentColor: Color = Color.Unspecified,
     shape: Shape = MaterialTheme.shapes.large,
     enabled: Boolean = true,
     onClick: (() -> Unit)? = null,
@@ -28,9 +29,19 @@ fun TonalCard(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable () -> Unit,
 ) {
+    val resolvedContainerColor = if (containerColor == Color.Unspecified) {
+        managerBlockColor(MaterialTheme.colorScheme.surfaceBright)
+    } else {
+        containerColor
+    }
+    val resolvedContentColor = if (contentColor == Color.Unspecified) {
+        contentColorFor(resolvedContainerColor)
+    } else {
+        contentColor
+    }
     val colors = CardDefaults.cardColors(
-        containerColor = containerColor,
-        contentColor = contentColor,
+        containerColor = resolvedContainerColor,
+        contentColor = resolvedContentColor,
     )
     when {
         onLongClick != null -> Card(

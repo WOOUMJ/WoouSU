@@ -134,6 +134,7 @@ import me.weishu.kernelsu.ui.component.ObserveAsEvents
 import me.weishu.kernelsu.ui.component.ScrollToTopOnChange
 import me.weishu.kernelsu.ui.component.dialog.rememberConfirmDialog
 import me.weishu.kernelsu.ui.component.dialog.rememberLoadingDialog
+import me.weishu.kernelsu.ui.component.managerBlockColor
 import me.weishu.kernelsu.ui.component.material.ExpressiveScaffold
 import me.weishu.kernelsu.ui.component.material.ExpressiveSwitch
 import me.weishu.kernelsu.ui.component.material.SearchAppBar
@@ -860,7 +861,7 @@ private fun ModuleItem(
                                 modifier = Modifier.defaultMinSize(52.dp, 32.dp),
                                 shape = ButtonDefaults.filledTonalShape,
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    containerColor = managerBlockColor(MaterialTheme.colorScheme.secondaryContainer),
                                     contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                                 ),
                                 contentPadding = ButtonDefaults.TextButtonContentPadding
@@ -891,7 +892,7 @@ private fun ModuleItem(
                                 modifier = Modifier.defaultMinSize(52.dp, 32.dp),
                                 shape = ButtonDefaults.filledTonalShape,
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    containerColor = managerBlockColor(MaterialTheme.colorScheme.secondaryContainer),
                                     contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                                 ),
                                 contentPadding = ButtonDefaults.TextButtonContentPadding

@@ -73,6 +73,7 @@ import me.weishu.kernelsu.ui.component.miuix.SearchBarFake
 import me.weishu.kernelsu.ui.component.miuix.SearchBox
 import me.weishu.kernelsu.ui.component.miuix.SearchPager
 import me.weishu.kernelsu.ui.component.statustag.StatusTag
+import me.weishu.kernelsu.ui.component.managerBlockColor
 import me.weishu.kernelsu.ui.theme.LocalEnableBlur
 import me.weishu.kernelsu.ui.theme.isInDarkTheme
 import me.weishu.kernelsu.ui.util.BlurredBar
@@ -81,6 +82,7 @@ import me.weishu.kernelsu.ui.util.rememberBlurBackdrop
 import me.weishu.kernelsu.ui.viewmodel.AppSortType
 import top.yukonga.miuix.kmp.basic.BasicComponent
 import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.CardDefaults
 import top.yukonga.miuix.kmp.basic.DropdownImpl
 import top.yukonga.miuix.kmp.basic.HorizontalDivider
 import top.yukonga.miuix.kmp.basic.Icon
@@ -507,7 +509,10 @@ private fun SimpleAppItem(
         )
         Card(
             modifier = Modifier
-                .padding(start = 6.dp, end = 12.dp, bottom = 6.dp)
+                .padding(start = 6.dp, end = 12.dp, bottom = 6.dp),
+            colors = CardDefaults.defaultColors(
+                color = managerBlockColor(colorScheme.surfaceContainer)
+            ),
         ) {
             BasicComponent(
                 title = app.label,
@@ -554,6 +559,9 @@ private fun GroupItem(
         modifier = Modifier
             .padding(horizontal = 12.dp)
             .padding(bottom = 12.dp),
+        colors = CardDefaults.defaultColors(
+            color = managerBlockColor(colorScheme.surfaceContainer)
+        ),
         onClick = onClickPrimary,
         onLongPress = if (group.apps.size > 1) onToggleExpand else null,
         showIndication = true,

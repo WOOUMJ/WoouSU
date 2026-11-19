@@ -65,6 +65,7 @@ import me.weishu.kernelsu.R
 import me.weishu.kernelsu.data.model.AppInfo
 import me.weishu.kernelsu.ui.component.AppIconImage
 import me.weishu.kernelsu.ui.component.ScrollToTopOnChange
+import me.weishu.kernelsu.ui.component.managerBlockColor
 import me.weishu.kernelsu.ui.component.material.ExpressiveScaffold
 import me.weishu.kernelsu.ui.component.material.SearchAppBar
 import me.weishu.kernelsu.ui.component.material.SegmentedColumn
@@ -442,9 +443,9 @@ private fun SimpleAppItem(
         modifier = Modifier.padding(horizontal = 4.dp),
         colors = ListItemDefaults.colors(
             containerColor = if (matched) {
-                colorScheme.secondaryContainer
+                managerBlockColor(colorScheme.secondaryContainer)
             } else {
-                colorScheme.surfaceColorAtElevation(3.dp)
+                managerBlockColor(colorScheme.surfaceColorAtElevation(3.dp))
             }
         ),
         content = { Text(app.label, overflow = TextOverflow.Ellipsis, maxLines = 1) },

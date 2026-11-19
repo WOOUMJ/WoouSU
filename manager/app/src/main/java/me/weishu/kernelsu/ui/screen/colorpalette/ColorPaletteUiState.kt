@@ -35,6 +35,7 @@ data class ColorPaletteScreenActions(
     val onPickBackgroundImage: () -> Unit,
     val onRemoveBackgroundImage: () -> Unit,
     val onSetBackgroundOpacity: (Float) -> Unit,
+    val onSetUiOpacity: (Float) -> Unit,
     val onPickStatusImage: () -> Unit,
     val onRemoveStatusImage: () -> Unit,
     val onSetStatusText: (String) -> Unit,

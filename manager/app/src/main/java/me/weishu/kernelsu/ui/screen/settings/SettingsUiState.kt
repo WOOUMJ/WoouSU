@@ -66,7 +66,8 @@ data class SettingsUiState(
     // Home appearance
     val hideVersionMismatch: Boolean = false,
     val backgroundImagePath: String = "",
-    val backgroundOpacity: Float = 0.35f,
+    val backgroundOpacity: Float = 0.7f,
+    val uiOpacity: Float = 0.5f,
     val statusText: String = "",
     val statusImagePath: String = ""
 )
@@ -89,5 +90,7 @@ data class SettingsScreenActions(
     val onSetAutoJailbreak: (Boolean) -> Unit,
     val onSetUseSoftReboot: (Boolean) -> Unit,
     val onSetHideVersionMismatch: (Boolean) -> Unit,
+    val onExportConfig: () -> Unit,
+    val onImportConfig: () -> Unit,
     val onOpenAbout: () -> Unit,
 )

@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LayersClear
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.RestartAlt
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material.icons.filled.SystemUpdateAlt
@@ -150,6 +151,34 @@ fun SettingPagerMaterial(
                             headlineContent = { Text(stringResource(id = R.string.settings_theme)) },
                             supportingContent = { Text(stringResource(id = R.string.settings_theme_summary)) },
                             leadingContent = { Icon(Icons.Filled.Palette, stringResource(id = R.string.settings_theme)) },
+                            trailingContent = {
+                                Icon(
+                                    Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                    null
+                                )
+                            }
+                        )
+                    }
+                    add {
+                        SegmentedListItem(
+                            onClick = actions.onExportConfig,
+                            headlineContent = { Text(stringResource(id = R.string.settings_export_config)) },
+                            supportingContent = { Text(stringResource(id = R.string.settings_export_config_summary)) },
+                            leadingContent = { Icon(Icons.Filled.Save, stringResource(id = R.string.settings_export_config)) },
+                            trailingContent = {
+                                Icon(
+                                    Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                    null
+                                )
+                            }
+                        )
+                    }
+                    add {
+                        SegmentedListItem(
+                            onClick = actions.onImportConfig,
+                            headlineContent = { Text(stringResource(id = R.string.settings_import_config)) },
+                            supportingContent = { Text(stringResource(id = R.string.settings_import_config_summary)) },
+                            leadingContent = { Icon(Icons.Filled.RestartAlt, stringResource(id = R.string.settings_import_config)) },
                             trailingContent = {
                                 Icon(
                                     Icons.AutoMirrored.Filled.KeyboardArrowRight,

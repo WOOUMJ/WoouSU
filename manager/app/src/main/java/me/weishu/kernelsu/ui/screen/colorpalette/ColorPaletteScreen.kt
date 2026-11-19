@@ -76,6 +76,7 @@ fun ColorPaletteScreen() {
         onPickBackgroundImage = { backgroundLauncher.launch("image/*") },
         onRemoveBackgroundImage = viewModel::removeBackgroundImage,
         onSetBackgroundOpacity = viewModel::setBackgroundOpacity,
+        onSetUiOpacity = viewModel::setUiOpacity,
         onPickStatusImage = { statusImageLauncher.launch("image/*") },
         onRemoveStatusImage = viewModel::removeStatusImage,
         onSetStatusText = viewModel::setStatusText,
