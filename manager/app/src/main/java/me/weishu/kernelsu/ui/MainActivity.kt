@@ -9,6 +9,7 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -226,36 +227,42 @@ class MainActivity : ComponentActivity() {
                                 }
                             }) {
                             entry<Route.Main>(swipeDismiss = swipeDismiss) { mainScreenEntry() }
-                            entry<Route.About>(swipeDismiss = swipeDismiss) { AboutScreen() }
-                            entry<Route.Sulog>(swipeDismiss = swipeDismiss) { SulogScreen() }
-                            entry<Route.ColorPalette>(swipeDismiss = swipeDismiss) { ColorPaletteScreen() }
-                            entry<Route.AppProfileTemplate>(swipeDismiss = swipeDismiss) { AppProfileTemplateScreen() }
-                            entry<Route.TemplateEditor>(swipeDismiss = swipeDismiss) { key -> TemplateEditorScreen(key.template, key.readOnly) }
-                            entry<Route.AppProfile>(swipeDismiss = swipeDismiss) { key -> AppProfileScreen(key.uid) }
-                            entry<Route.ModuleRepo>(swipeDismiss = swipeDismiss) { ModuleRepoScreen() }
-                            entry<Route.ModuleRepoDetail>(swipeDismiss = swipeDismiss) { key -> ModuleRepoDetailScreen(key.module) }
-                            entry<Route.Install>(swipeDismiss = swipeDismiss) { InstallScreen() }
+                            entry<Route.About>(swipeDismiss = swipeDismiss) { SecondaryScreen { AboutScreen() } }
+                            entry<Route.Sulog>(swipeDismiss = swipeDismiss) { SecondaryScreen { SulogScreen() } }
+                            entry<Route.ColorPalette>(swipeDismiss = swipeDismiss) { SecondaryScreen { ColorPaletteScreen() } }
+                            entry<Route.AppProfileTemplate>(swipeDismiss = swipeDismiss) { SecondaryScreen { AppProfileTemplateScreen() } }
+                            entry<Route.TemplateEditor>(swipeDismiss = swipeDismiss) { key -> SecondaryScreen { TemplateEditorScreen(key.template, key.readOnly) } }
+                            entry<Route.AppProfile>(swipeDismiss = swipeDismiss) { key -> SecondaryScreen { AppProfileScreen(key.uid) } }
+                            entry<Route.ModuleRepo>(swipeDismiss = swipeDismiss) { SecondaryScreen { ModuleRepoScreen() } }
+                            entry<Route.ModuleRepoDetail>(swipeDismiss = swipeDismiss) { key -> SecondaryScreen { ModuleRepoDetailScreen(key.module) } }
+                            entry<Route.Install>(swipeDismiss = swipeDismiss) { SecondaryScreen { InstallScreen() } }
                             entry<Route.Flash>(swipeDismiss = if (flashBackEnabled) swipeDismiss else NavSwipeDirection.None) { key ->
-                                FlashScreen(
-                                    key.flashIt,
-                                    onBackEnabledChange = { enabled ->
-                                        if (navigator.current() == key) flashBackEnabled = enabled
-                                    },
-                                )
+                                SecondaryScreen {
+                                    FlashScreen(
+                                        key.flashIt,
+                                        onBackEnabledChange = { enabled ->
+                                            if (navigator.current() == key) flashBackEnabled = enabled
+                                        },
+                                    )
+                                }
                             }
                             entry<Route.ExecuteModuleAction>(swipeDismiss = swipeDismiss) { key ->
-                                ExecuteModuleActionScreen(
-                                    key.moduleId,
-                                    key.fromShortcut
-                                )
+                                SecondaryScreen {
+                                    ExecuteModuleActionScreen(
+                                        key.moduleId,
+                                        key.fromShortcut
+                                    )
+                                }
                             }
                             entry<Route.ScriptRun>(swipeDismiss = scriptRunSwipeDismiss) { key ->
-                                ScriptRunScreen(
-                                    key.arg,
-                                    onBackEnabledChange = { enabled ->
-                                        if (navigator.current() == key) scriptRunBackEnabled = enabled
-                                    },
-                                )
+                                SecondaryScreen {
+                                    ScriptRunScreen(
+                                        key.arg,
+                                        onBackEnabledChange = { enabled ->
+                                            if (navigator.current() == key) scriptRunBackEnabled = enabled
+                                        },
+                                    )
+                                }
                             }
                             entry<Route.Home>(swipeDismiss = swipeDismiss) { mainScreenEntry() }
                             entry<Route.SuperUser>(swipeDismiss = swipeDismiss) { mainScreenEntry() }
@@ -546,6 +553,34 @@ fun MainScreen(
     }
 }
 
+
+/**
+ * Secondary routes stack on top of the main pager, which stays composed underneath.
+ * Give them their own opaque wallpaper layer so the page below cannot show through.
+ */
+@Composable
+private fun SecondaryScreen(content: @Composable () -> Unit) {
+    val appearance = LocalManagerAppearance.current
+    if (!appearance.hasBackground) {
+        content()
+        return
+    }
+    val surface = when (LocalUiMode.current) {
+        UiMode.Material -> MaterialTheme.colorScheme.surfaceContainer
+        UiMode.Miuix -> MiuixTheme.colorScheme.surface
+    }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(surface)
+    ) {
+        ManagerBackground(
+            path = appearance.backgroundImagePath,
+            opacity = appearance.backgroundOpacity,
+        )
+        content()
+    }
+}
 
 @Composable
 private fun MainScreenBackHandler(
