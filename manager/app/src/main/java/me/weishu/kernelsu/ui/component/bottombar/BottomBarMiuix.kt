@@ -26,6 +26,7 @@ import me.weishu.kernelsu.R
 import me.weishu.kernelsu.ui.LocalMainPagerState
 import me.weishu.kernelsu.ui.component.FloatingBottomBar
 import me.weishu.kernelsu.ui.component.FloatingBottomBarItem
+import me.weishu.kernelsu.ui.component.LocalManagerAppearance
 import me.weishu.kernelsu.ui.theme.LocalEnableFloatingBottomBar
 import me.weishu.kernelsu.ui.theme.LocalEnableFloatingBottomBarBlur
 import me.weishu.kernelsu.ui.util.BlurredBar
@@ -61,10 +62,14 @@ fun BottomBarMiuix(
         )
     }
     if (!enableFloatingBottomBar) {
+        val hasBackground = LocalManagerAppearance.current.hasBackground
         BlurredBar(blurBackdrop) {
             NavigationBar(
                 modifier = modifier,
-                color = if (blurBackdrop != null) Color.Transparent else MiuixTheme.colorScheme.surface,
+                color = when {
+                    blurBackdrop != null || hasBackground -> Color.Transparent
+                    else -> MiuixTheme.colorScheme.surface
+                },
                 content = {
                     items.forEachIndexed { index, item ->
                         NavigationBarItem(

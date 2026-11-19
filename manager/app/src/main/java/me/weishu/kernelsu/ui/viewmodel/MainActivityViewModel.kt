@@ -58,6 +58,7 @@ class MainActivityViewModel(
             appearance = ManagerAppearance(
                 backgroundImagePath = settingRepo.backgroundImagePath,
                 backgroundOpacity = settingRepo.backgroundOpacity,
+                uiOpacity = settingRepo.uiOpacity,
                 hideVersionMismatch = settingRepo.hideVersionMismatch,
                 statusText = settingRepo.statusText,
                 statusImagePath = settingRepo.statusImagePath,
@@ -82,6 +83,7 @@ class MainActivityViewModel(
             "ui_mode",
             "background_image_path",
             "background_opacity",
+            "ui_opacity",
             "hide_version_mismatch",
             "status_text",
             "status_image_path",

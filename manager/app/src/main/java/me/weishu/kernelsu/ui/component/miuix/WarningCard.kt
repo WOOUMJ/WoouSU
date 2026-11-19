@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import me.weishu.kernelsu.ui.component.WarningLevel
+import me.weishu.kernelsu.ui.component.managerBlockColor
 import me.weishu.kernelsu.ui.theme.isInDarkTheme
 import top.yukonga.miuix.kmp.basic.Card
 import top.yukonga.miuix.kmp.basic.CardDefaults
@@ -31,7 +32,7 @@ fun WarningCard(
         modifier = modifier,
         onClick = { onClick?.invoke() },
         colors = CardDefaults.defaultColors(
-            color = level.containerColor(),
+            color = managerBlockColor(level.containerColor()),
             contentColor = level.contentColor(),
         ),
         showIndication = onClick != null,

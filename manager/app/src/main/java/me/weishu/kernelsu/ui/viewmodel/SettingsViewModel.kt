@@ -95,6 +95,7 @@ class SettingsViewModel(
             val hideVersionMismatch = repo.hideVersionMismatch
             val backgroundImagePath = repo.backgroundImagePath
             val backgroundOpacity = repo.backgroundOpacity
+            val uiOpacity = repo.uiOpacity
             val statusText = repo.statusText
             val statusImagePath = repo.statusImagePath
             val isLateLoadMode = Natives.isLateLoadMode
@@ -139,6 +140,7 @@ class SettingsViewModel(
                     hideVersionMismatch = hideVersionMismatch,
                     backgroundImagePath = backgroundImagePath,
                     backgroundOpacity = backgroundOpacity,
+                    uiOpacity = uiOpacity,
                     statusText = statusText,
                     statusImagePath = statusImagePath,
                     isLateLoadMode = isLateLoadMode,
@@ -399,6 +401,43 @@ class SettingsViewModel(
         val opacity = value.coerceIn(0.05f, 1f)
         repo.backgroundOpacity = opacity
         _uiState.update { it.copy(backgroundOpacity = opacity) }
+    }
+
+    fun setUiOpacity(value: Float) {
+        val opacity = value.coerceIn(0.05f, 1f)
+        repo.uiOpacity = opacity
+        _uiState.update { it.copy(uiOpacity = opacity) }
+    }
+
+    fun exportConfig(uri: Uri?) {
+        if (uri == null) return
+        viewModelScope.launch(Dispatchers.IO) {
+            val ok = runCatching { repo.exportConfig(uri) }.getOrDefault(false)
+            withContext(Dispatchers.Main) {
+                Toast.makeText(
+                    ksuApp,
+                    if (ok) R.string.settings_config_export_success else R.string.settings_config_export_failed,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    fun importConfig(uri: Uri?) {
+        if (uri == null) return
+        viewModelScope.launch(Dispatchers.IO) {
+            val ok = runCatching { repo.importConfig(uri) }.getOrDefault(false)
+            withContext(Dispatchers.Main) {
+                Toast.makeText(
+                    ksuApp,
+                    if (ok) R.string.settings_config_import_success else R.string.settings_config_import_failed,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            if (ok) {
+                refresh()
+            }
+        }
     }
 
     fun setStatusText(text: String) {

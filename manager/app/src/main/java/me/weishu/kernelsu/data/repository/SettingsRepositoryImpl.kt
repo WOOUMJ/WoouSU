@@ -3,6 +3,7 @@ package me.weishu.kernelsu.data.repository
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.util.Log
 import androidx.core.content.edit
 import com.materialkolor.PaletteStyle
@@ -17,7 +18,15 @@ import me.weishu.kernelsu.ui.util.execKsud
 import me.weishu.kernelsu.ui.util.getFeaturePersistValue
 import me.weishu.kernelsu.ui.util.getFeatureValue
 import me.weishu.kernelsu.ui.util.getFeatureStatus
+import org.json.JSONArray
+import org.json.JSONObject
+import java.io.BufferedInputStream
+import java.io.BufferedOutputStream
+import java.io.File
 import java.security.SecureRandom
+import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
+import java.util.zip.ZipOutputStream
 
 private const val SETTINGS_PREFS = "settings"
 private const val KEY_USE_SOFT_REBOOT = "soft_reboot"
@@ -28,11 +37,6 @@ fun isSoftRebootPreferred(): Boolean =
         .getBoolean(KEY_USE_SOFT_REBOOT, false)
 
 class SettingsRepositoryImpl : SettingsRepository {
-
-    private companion object {
-        private const val INTENT_TOKEN_KEY = "intent_token"
-        private val secureRandom = SecureRandom()
-    }
 
     private val prefs by lazy {
         ksuApp.getSharedPreferences(SETTINGS_PREFS, Context.MODE_PRIVATE)
@@ -178,8 +182,12 @@ class SettingsRepositoryImpl : SettingsRepository {
         set(value) = prefs.edit { putString("background_image_path", value) }
 
     override var backgroundOpacity: Float
-        get() = prefs.getFloat("background_opacity", 0.35f).coerceIn(0.05f, 1f)
+        get() = prefs.getFloat("background_opacity", 0.7f).coerceIn(0.05f, 1f)
         set(value) = prefs.edit { putFloat("background_opacity", value.coerceIn(0.05f, 1f)) }
+
+    override var uiOpacity: Float
+        get() = prefs.getFloat("ui_opacity", 0.5f).coerceIn(0.05f, 1f)
+        set(value) = prefs.edit { putFloat("ui_opacity", value.coerceIn(0.05f, 1f)) }
 
     override var statusText: String
         get() = prefs.getString("status_text", "") ?: ""
@@ -262,5 +270,122 @@ class SettingsRepositoryImpl : SettingsRepository {
 
     override fun execKsudFeatureSave() {
         execKsud("feature save", true)
+    }
+
+    override fun exportConfig(uri: Uri): Boolean = runCatching {
+        val root = JSONObject()
+        val entries = JSONObject()
+        for ((key, value) in prefs.all) {
+            if (key == INTENT_TOKEN_KEY) continue
+            when (value) {
+                is Boolean -> entries.put(key, JSONObject().put("type", "b").put("value", value))
+                is Float -> entries.put(key, JSONObject().put("type", "f").put("value", value.toDouble()))
+                is Int -> entries.put(key, JSONObject().put("type", "i").put("value", value))
+                is Long -> entries.put(key, JSONObject().put("type", "l").put("value", value))
+                is String -> entries.put(key, JSONObject().put("type", "s").put("value", value))
+                is Set<*> -> entries.put(
+                    key,
+                    JSONObject().put("type", "ss").put("value", JSONArray(value.map { it.toString() }))
+                )
+                else -> {}
+            }
+        }
+        root.put("version", 1).put("entries", entries)
+
+        val images = JSONObject()
+        fun packImage(name: String, path: String) {
+            val file = File(path)
+            if (path.isNotEmpty() && file.isFile) {
+                images.put(name, file.name)
+            }
+        }
+        packImage("background", backgroundImagePath)
+        packImage("status", statusImagePath)
+        root.put("images", images)
+
+        ksuApp.contentResolver.openOutputStream(uri)?.use { out ->
+            ZipOutputStream(BufferedOutputStream(out)).use { zip ->
+                zip.putNextEntry(ZipEntry(CONFIG_JSON_ENTRY))
+                zip.write(root.toString().toByteArray())
+                zip.closeEntry()
+                fun writeImage(name: String, path: String) {
+                    val file = File(path)
+                    if (path.isNotEmpty() && file.isFile) {
+                        zip.putNextEntry(ZipEntry("$CONFIG_IMAGE_DIR/$name/${file.name}"))
+                        file.inputStream().use { it.copyTo(zip) }
+                        zip.closeEntry()
+                    }
+                }
+                writeImage("background", backgroundImagePath)
+                writeImage("status", statusImagePath)
+            }
+        } ?: return false
+        true
+    }.getOrElse {
+        Log.e("Settings", "export config failed", it)
+        false
+    }
+
+    override fun importConfig(uri: Uri): Boolean = runCatching {
+        var rootJson: JSONObject? = null
+        val imageFiles = mutableMapOf<String, File>()
+        ksuApp.contentResolver.openInputStream(uri)?.use { input ->
+            ZipInputStream(BufferedInputStream(input)).use { zip ->
+                var entry: ZipEntry? = zip.nextEntry
+                while (entry != null) {
+                    val name = entry.name
+                    when {
+                        name == CONFIG_JSON_ENTRY -> {
+                            rootJson = JSONObject(zip.readBytes().toString(Charsets.UTF_8))
+                        }
+                        name.startsWith("$CONFIG_IMAGE_DIR/") -> {
+                            val parts = name.substringAfter("$CONFIG_IMAGE_DIR/").split('/', limit = 2)
+                            if (parts.size == 2 && parts[0].isNotEmpty() && parts[1].isNotEmpty()) {
+                                val target = File(File(ksuApp.filesDir, CONFIG_IMAGE_DIR), "import_${parts[0]}_${System.currentTimeMillis()}_${parts[1]}")
+                                target.parentFile?.mkdirs()
+                                target.outputStream().use { zip.copyTo(it) }
+                                imageFiles[parts[0]] = target
+                            }
+                        }
+                    }
+                    entry = zip.nextEntry
+                }
+            }
+        } ?: return false
+        val root = rootJson ?: return false
+
+        val entries = root.optJSONObject("entries") ?: return false
+        prefs.edit {
+            for (key in prefs.all.keys) {
+                if (key != INTENT_TOKEN_KEY) remove(key)
+            }
+            for (key in entries.keys()) {
+                val e = entries.optJSONObject(key) ?: continue
+                when (e.optString("type")) {
+                    "b" -> putBoolean(key, e.optBoolean("value"))
+                    "f" -> putFloat(key, e.optDouble("value", 0.0).toFloat())
+                    "i" -> putInt(key, e.optInt("value"))
+                    "l" -> putLong(key, e.optLong("value"))
+                    "s" -> putString(key, e.optString("value"))
+                    "ss" -> {
+                        val arr = e.optJSONArray("value") ?: continue
+                        putStringSet(key, List(arr.length()) { arr.optString(it) }.toSet())
+                    }
+                }
+            }
+            imageFiles["background"]?.let { putString("background_image_path", it.absolutePath) }
+            imageFiles["status"]?.let { putString("status_image_path", it.absolutePath) }
+        }
+        true
+    }.getOrElse {
+        Log.e("Settings", "import config failed", it)
+        false
+    }
+
+    private companion object {
+        private const val INTENT_TOKEN_KEY = "intent_token"
+        private const val CONFIG_JSON_ENTRY = "woousu_config.json"
+        private const val CONFIG_IMAGE_DIR = "images"
+        private val secureRandom = SecureRandom()
     }
 }

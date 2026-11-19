@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.DeveloperBoard
@@ -43,6 +44,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -60,6 +62,7 @@ import me.weishu.kernelsu.Natives
 import me.weishu.kernelsu.R
 import me.weishu.kernelsu.ui.component.LocalManagerAppearance
 import me.weishu.kernelsu.ui.component.ManagerImage
+import me.weishu.kernelsu.ui.component.managerBlockColor
 import me.weishu.kernelsu.ui.component.WarningLevel
 import me.weishu.kernelsu.ui.component.dialog.rememberConfirmDialog
 import me.weishu.kernelsu.ui.component.miuix.WarningCard
@@ -273,6 +276,7 @@ private fun StatusCard(
                     else -> "GKI"
                 }
                 val appearance = LocalManagerAppearance.current
+                val statusCardImage = appearance.statusImagePath
                 val workingText = appearance.statusText.ifEmpty {
                     stringResource(id = R.string.home_working)
                 } + workingState
@@ -286,10 +290,16 @@ private fun StatusCard(
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.defaultColors(
-                            color = when {
-                                isDynamicColor -> colorScheme.secondaryContainer
-                                isInDarkTheme() -> Color(0xFF1A3825)
-                                else -> Color(0xFFDFFAE4)
+                            color = if (statusCardImage.isNotEmpty()) {
+                                Color.Transparent
+                            } else {
+                                managerBlockColor(
+                                    when {
+                                        isDynamicColor -> colorScheme.secondaryContainer
+                                        isInDarkTheme() -> Color(0xFF1A3825)
+                                        else -> Color(0xFFDFFAE4)
+                                    }
+                                )
                             }
                         ),
                         onClick = {
@@ -301,29 +311,30 @@ private fun StatusCard(
                         pressFeedbackType = PressFeedbackType.Tilt
                     ) {
                         Box {
+                            if (statusCardImage.isNotEmpty()) {
+                                ManagerImage(
+                                    path = statusCardImage,
+                                    modifier = Modifier
+                                        .matchParentSize()
+                                        .clip(RoundedCornerShape(16.dp)),
+                                )
+                            }
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .offset(27.dp, 31.dp),
                                 contentAlignment = Alignment.BottomEnd
                             ) {
-                                if (appearance.statusImagePath.isNotEmpty()) {
-                                    ManagerImage(
-                                        path = appearance.statusImagePath,
-                                        modifier = Modifier.size(110.dp),
-                                    )
-                                } else {
-                                    Icon(
-                                        modifier = Modifier.size(110.dp),
-                                        imageVector = Icons.Rounded.CheckCircleOutline,
-                                        tint = if (isDynamicColor) {
-                                            colorScheme.primary.copy(alpha = 0.8f)
-                                        } else {
-                                            Color(0xFF36D167)
-                                        },
-                                        contentDescription = null
-                                    )
-                                }
+                                Icon(
+                                    modifier = Modifier.size(110.dp),
+                                    imageVector = Icons.Rounded.CheckCircleOutline,
+                                    tint = if (isDynamicColor) {
+                                        colorScheme.primary.copy(alpha = 0.8f)
+                                    } else {
+                                        Color(0xFF36D167)
+                                    },
+                                    contentDescription = null
+                                )
                             }
                             if (workingMode != null) {
                                 Box(
@@ -393,6 +404,9 @@ private fun StatusCard(
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     Card(
                         modifier = Modifier.weight(1f),
+                        colors = CardDefaults.defaultColors(
+                            color = managerBlockColor(colorScheme.surfaceContainer)
+                        ),
                         onClick = {
                             if (!state.isLateLoadMode) {
                                 actions.onInstallClick()
@@ -428,6 +442,9 @@ private fun StatusCard(
 
             else -> {
                 Card(
+                    colors = CardDefaults.defaultColors(
+                        color = managerBlockColor(colorScheme.surfaceContainer)
+                    ),
                     onClick = {
                         if (!state.isLateLoadMode) {
                             actions.onInstallClick()
@@ -461,7 +478,10 @@ private fun SupportLinks(
 ) {
     val learnMoreUrl = "https://github.com/WOOUMJ/WoouSU"
 
-    Card(modifier = modifier) {
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.defaultColors(color = managerBlockColor(colorScheme.surfaceContainer))
+    ) {
         ArrowPreference(
             title = stringResource(R.string.home_support_title),
             summary = stringResource(R.string.home_support_content),
@@ -552,7 +572,10 @@ private fun InfoCard(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Card(modifier = Modifier.fillMaxWidth()) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.defaultColors(color = managerBlockColor(colorScheme.surfaceContainer))
+        ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 InfoText(
                     icon = Icons.Filled.Tag,
@@ -577,7 +600,10 @@ private fun InfoCard(
                 )
             }
         }
-        Card(modifier = Modifier.fillMaxWidth()) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.defaultColors(color = managerBlockColor(colorScheme.surfaceContainer))
+        ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 InfoText(
                     icon = Icons.Filled.Security,

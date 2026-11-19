@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
+import me.weishu.kernelsu.ui.component.LocalManagerAppearance
 import top.yukonga.miuix.kmp.blur.BlendColorEntry
 import top.yukonga.miuix.kmp.blur.BlurColors
 import top.yukonga.miuix.kmp.blur.LayerBackdrop
@@ -28,8 +29,14 @@ fun BlurredBar(
     blurActive: Boolean = true,
     content: @Composable () -> Unit,
 ) {
+    // When a full-screen manager background image is active, the backdrop layer
+    // does not contain the image (it is drawn behind the scaffold), so blurring
+    // the bar would render an opaque surface strip that visually cuts the
+    // background in two. Keep the bar transparent over the image instead.
+    val hasBackground = LocalManagerAppearance.current.hasBackground
+    val effective = blurActive && !hasBackground
     Box(
-        modifier = if (blurActive && backdrop != null) {
+        modifier = if (effective && backdrop != null) {
             Modifier.textureBlur(
                 backdrop = backdrop,
                 shape = RectangleShape,

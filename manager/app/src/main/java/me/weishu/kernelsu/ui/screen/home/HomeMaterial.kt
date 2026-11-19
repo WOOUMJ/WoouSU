@@ -54,6 +54,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -71,6 +72,7 @@ import me.weishu.kernelsu.R
 import me.weishu.kernelsu.ui.component.LocalManagerAppearance
 import me.weishu.kernelsu.ui.component.ManagerImage
 import me.weishu.kernelsu.ui.component.WarningLevel
+import me.weishu.kernelsu.ui.component.managerBlockColor
 import me.weishu.kernelsu.ui.component.dialog.rememberConfirmDialog
 import me.weishu.kernelsu.ui.component.material.ExpressiveScaffold
 import me.weishu.kernelsu.ui.component.material.SegmentedColumn
@@ -214,14 +216,26 @@ private fun StatusCard(
         val ksuActive = state.ksuVersion != null
         val notInstalled = !ksuActive && state.kernelVersion.isGKI()
 
-        val containerColor = if (ksuActive) {
+        val appearance = LocalManagerAppearance.current
+        val statusCardImage = appearance.statusImagePath
+        val hasCardImage = ksuActive && statusCardImage.isNotEmpty()
+
+        val baseContainerColor = if (ksuActive) {
             MaterialTheme.colorScheme.secondaryContainer
         } else {
             MaterialTheme.colorScheme.errorContainer
         }
-        val contentColor = MaterialTheme.colorScheme.contentColorFor(containerColor)
+        val containerColor = if (hasCardImage) {
+            Color.Transparent
+        } else {
+            managerBlockColor(baseContainerColor)
+        }
+        val contentColor = if (hasCardImage) {
+            MaterialTheme.colorScheme.onSurface
+        } else {
+            MaterialTheme.colorScheme.contentColorFor(baseContainerColor)
+        }
 
-        val appearance = LocalManagerAppearance.current
         val statusIcon = when {
             ksuActive -> Icons.Rounded.CheckCircle
             notInstalled -> Icons.Rounded.Warning
@@ -278,18 +292,20 @@ private fun StatusCard(
                 }
             }
         ) {
-            ListItem(
+            Box {
+                if (hasCardImage) {
+                    ManagerImage(
+                        path = statusCardImage,
+                        modifier = Modifier
+                            .matchParentSize()
+                            .clip(MaterialTheme.shapes.large),
+                        contentScale = ContentScale.Crop,
+                    )
+                }
+                ListItem(
                 modifier = Modifier,
                 leadingContent = {
-                    if (ksuActive && appearance.statusImagePath.isNotEmpty()) {
-                        ManagerImage(
-                            path = appearance.statusImagePath,
-                            modifier = Modifier.size(40.dp),
-                            contentScale = ContentScale.Crop,
-                        )
-                    } else {
-                        Icon(statusIcon, contentDescription = statusTitle)
-                    }
+                    Icon(statusIcon, contentDescription = statusTitle)
                 },
                 trailingContent = statusTrailing,
                 overlineContent = null,
@@ -344,6 +360,7 @@ private fun StatusCard(
                     }
                 },
             )
+            }
         }
     }
 }
@@ -372,9 +389,9 @@ private fun WarningCard(
         }
     }
     if (onClick != null) {
-        TonalCard(containerColor = containerColor, onClick = onClick, content = content)
+        TonalCard(containerColor = managerBlockColor(containerColor), onClick = onClick, content = content)
     } else {
-        TonalCard(containerColor = containerColor, content = content)
+        TonalCard(containerColor = managerBlockColor(containerColor), content = content)
     }
 }
 

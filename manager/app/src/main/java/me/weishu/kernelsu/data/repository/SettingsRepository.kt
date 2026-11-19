@@ -1,5 +1,7 @@
 package me.weishu.kernelsu.data.repository
 
+import android.net.Uri
+
 interface SettingsRepository {
     var uiMode: String
     var checkUpdate: Boolean
@@ -33,9 +35,16 @@ interface SettingsRepository {
     var hideVersionMismatch: Boolean
     var backgroundImagePath: String
     var backgroundOpacity: Float
+    var uiOpacity: Float
     var statusText: String
     var statusImagePath: String
     val intentToken: String
+
+    /** Export all settings (including custom images) into a zip archive at [uri]. */
+    fun exportConfig(uri: Uri): Boolean
+
+    /** Import settings (including custom images) from a zip archive at [uri]. */
+    fun importConfig(uri: Uri): Boolean
 
     suspend fun getSuCompatStatus(): String
     suspend fun getSuCompatPersistValue(): Long?

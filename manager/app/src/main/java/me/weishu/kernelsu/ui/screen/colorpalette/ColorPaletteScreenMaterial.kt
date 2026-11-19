@@ -52,6 +52,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DisplaySettings
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.LayersClear
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material.icons.rounded.AspectRatio
@@ -98,6 +99,7 @@ import com.materialkolor.PaletteStyle
 import com.materialkolor.dynamiccolor.ColorSpec
 import me.weishu.kernelsu.R
 import me.weishu.kernelsu.ui.component.bottombar.useNavigationRail
+import me.weishu.kernelsu.ui.component.managerBlockColor
 import me.weishu.kernelsu.ui.component.material.ExpressiveScaffold
 import me.weishu.kernelsu.ui.component.material.ExpressiveToggleButton
 import me.weishu.kernelsu.ui.component.material.SegmentedColumn
@@ -359,6 +361,49 @@ fun ColorPaletteScreenMaterial(
                             Slider(
                                 state = sliderState,
                                 onValueChange = { actions.onSetBackgroundOpacity(it) },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                    }
+                }
+
+                item {
+                    TonalCard(modifier = Modifier.padding(horizontal = 16.dp)) {
+                        val uiSliderState = rememberSliderState(
+                            value = uiState.uiOpacity,
+                            trackRange = 0.05f..1f
+                        )
+
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Filled.LayersClear,
+                                    contentDescription = stringResource(id = R.string.settings_ui_opacity),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text(
+                                    text = stringResource(R.string.settings_ui_opacity),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Text(
+                                    text = "${(uiSliderState.value * 100).toInt()}%",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+
+                            Slider(
+                                state = uiSliderState,
+                                onValueChange = { actions.onSetUiOpacity(it) },
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }
@@ -692,7 +737,7 @@ private fun ThemePreviewCard(
                         verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         TonalCard(
-                            containerColor = colorScheme.secondaryContainer,
+                            containerColor = managerBlockColor(colorScheme.secondaryContainer),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(40.dp),
@@ -701,7 +746,7 @@ private fun ThemePreviewCard(
                         )
                         if (showInfoCard) {
                             TonalCard(
-                                containerColor = colorScheme.surfaceBright,
+                                containerColor = managerBlockColor(colorScheme.surfaceBright),
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .weight(1f),

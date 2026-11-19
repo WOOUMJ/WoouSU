@@ -24,6 +24,7 @@ import androidx.compose.material.icons.rounded.Description
 import androidx.compose.material.icons.rounded.DeveloperMode
 import androidx.compose.material.icons.rounded.DisplaySettings
 import androidx.compose.material.icons.rounded.FlashOn
+import androidx.compose.material.icons.rounded.Archive
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.LayersClear
 import androidx.compose.material.icons.rounded.Palette
@@ -48,11 +49,13 @@ import me.weishu.kernelsu.ui.component.LocalManagerAppearance
 import me.weishu.kernelsu.ui.component.dialog.rememberLoadingDialog
 import me.weishu.kernelsu.ui.component.miuix.SendLogDialog
 import me.weishu.kernelsu.ui.component.uninstalldialog.UninstallDialog
+import me.weishu.kernelsu.ui.component.managerBlockColor
 import me.weishu.kernelsu.ui.theme.LocalEnableBlur
 import me.weishu.kernelsu.ui.util.BlurredBar
 import me.weishu.kernelsu.ui.util.rememberBlurBackdrop
 import top.yukonga.miuix.kmp.basic.BasicComponent
 import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.CardDefaults
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.MiuixScrollBehavior
 import top.yukonga.miuix.kmp.basic.Scaffold
@@ -117,6 +120,9 @@ fun SettingPagerMiuix(
                         modifier = Modifier
                             .padding(top = 12.dp)
                             .fillMaxWidth(),
+                        colors = CardDefaults.defaultColors(
+                            color = managerBlockColor(colorScheme.surfaceContainer)
+                        ),
                     ) {
                         SwitchPreference(
                             title = stringResource(id = R.string.settings_check_update),
@@ -168,6 +174,9 @@ fun SettingPagerMiuix(
                         modifier = Modifier
                             .padding(top = 12.dp)
                             .fillMaxWidth(),
+                        colors = CardDefaults.defaultColors(
+                            color = managerBlockColor(colorScheme.surfaceContainer)
+                        ),
                     ) {
                         OverlayDropdownPreference(
                             title = stringResource(id = R.string.settings_ui_mode),
@@ -197,6 +206,32 @@ fun SettingPagerMiuix(
                             },
                             onClick = actions.onOpenTheme
                         )
+                        ArrowPreference(
+                            title = stringResource(id = R.string.settings_export_config),
+                            summary = stringResource(id = R.string.settings_export_config_summary),
+                            startAction = {
+                                Icon(
+                                    Icons.Rounded.Archive,
+                                    modifier = Modifier.padding(end = 6.dp),
+                                    contentDescription = stringResource(id = R.string.settings_export_config),
+                                    tint = colorScheme.onBackground
+                                )
+                            },
+                            onClick = actions.onExportConfig
+                        )
+                        ArrowPreference(
+                            title = stringResource(id = R.string.settings_import_config),
+                            summary = stringResource(id = R.string.settings_import_config_summary),
+                            startAction = {
+                                Icon(
+                                    Icons.Rounded.RestartAlt,
+                                    modifier = Modifier.padding(end = 6.dp),
+                                    contentDescription = stringResource(id = R.string.settings_import_config),
+                                    tint = colorScheme.onBackground
+                                )
+                            },
+                            onClick = actions.onImportConfig
+                        )
                     }
 
                     KsuIsValid {
@@ -204,6 +239,9 @@ fun SettingPagerMiuix(
                             modifier = Modifier
                                 .padding(top = 12.dp)
                                 .fillMaxWidth(),
+                            colors = CardDefaults.defaultColors(
+                                color = managerBlockColor(colorScheme.surfaceContainer)
+                            ),
                         ) {
                             val profileTemplate = stringResource(id = R.string.settings_profile_template)
                             ArrowPreference(
@@ -227,6 +265,9 @@ fun SettingPagerMiuix(
                             modifier = Modifier
                                 .padding(top = 12.dp)
                                 .fillMaxWidth(),
+                            colors = CardDefaults.defaultColors(
+                                color = managerBlockColor(colorScheme.surfaceContainer)
+                            ),
                         ) {
                             val suCompatModeItems = listOf(
                                 stringResource(id = R.string.settings_mode_enable_by_default),
@@ -387,6 +428,9 @@ fun SettingPagerMiuix(
                             modifier = Modifier
                                 .padding(top = 12.dp)
                                 .fillMaxWidth(),
+                            colors = CardDefaults.defaultColors(
+                                color = managerBlockColor(colorScheme.surfaceContainer)
+                            ),
                         ) {
                             SwitchPreference(
                                 title = stringResource(id = R.string.settings_umount_modules_default),
@@ -440,6 +484,9 @@ fun SettingPagerMiuix(
                             modifier = Modifier
                                 .padding(top = 12.dp)
                                 .fillMaxWidth(),
+                            colors = CardDefaults.defaultColors(
+                                color = managerBlockColor(colorScheme.surfaceContainer)
+                            ),
                         ) {
                             val uninstall = stringResource(id = R.string.settings_uninstall)
                             ArrowPreference(
@@ -466,6 +513,9 @@ fun SettingPagerMiuix(
                         modifier = Modifier
                             .padding(vertical = 12.dp)
                             .fillMaxWidth(),
+                        colors = CardDefaults.defaultColors(
+                            color = managerBlockColor(colorScheme.surfaceContainer)
+                        ),
                     ) {
                         ArrowPreference(
                             title = stringResource(id = R.string.send_log),

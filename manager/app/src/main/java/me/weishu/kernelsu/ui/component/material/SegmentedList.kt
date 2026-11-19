@@ -71,6 +71,7 @@ import androidx.compose.ui.unit.round
 import androidx.compose.ui.zIndex
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
+import me.weishu.kernelsu.ui.component.managerBlockColor
 
 val LocalListItemShapes = compositionLocalOf<ListItemShapes?> { null }
 private val SegmentedOuterRadius = 16.dp
@@ -83,8 +84,8 @@ annotation class SegmentedColumnDsl
 
 @Composable
 private fun defaultSegmentedColors(): ListItemColors = ListItemDefaults.segmentedColors(
-    containerColor = colorScheme.surfaceBright,
-    disabledContainerColor = colorScheme.surfaceBright,
+    containerColor = managerBlockColor(colorScheme.surfaceBright),
+    disabledContainerColor = managerBlockColor(colorScheme.surfaceBright),
     supportingContentColor = colorScheme.onSurfaceVariant
 )
 
@@ -275,7 +276,7 @@ fun SegmentedItemContainer(
     val shapes = LocalListItemShapes.current ?: ListItemDefaults.segmentedShapes(0, 1)
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = colorScheme.surfaceBright,
+        color = managerBlockColor(colorScheme.surfaceBright),
         shape = shapes.shape,
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
