@@ -66,6 +66,10 @@ import me.weishu.kernelsu.ui.util.setSepolicy
 import me.weishu.kernelsu.ui.viewmodel.SuperUserViewModel
 import top.yukonga.miuix.kmp.basic.BasicComponent
 import top.yukonga.miuix.kmp.basic.Card
+import me.weishu.kernelsu.ui.component.miuix.managerCardColors
+import me.weishu.kernelsu.ui.component.miuix.managerScreenBarColor
+import me.weishu.kernelsu.ui.component.miuix.managerScreenContainerColor
+import top.yukonga.miuix.kmp.basic.CardDefaults
 import top.yukonga.miuix.kmp.basic.Icon
 import top.yukonga.miuix.kmp.basic.IconButton
 import top.yukonga.miuix.kmp.basic.ListPopupColumn
@@ -101,8 +105,9 @@ fun AppProfileScreenMiuix(
     val scrollBehavior = MiuixScrollBehavior()
     val backdrop = rememberBlurBackdrop(enableBlur)
     val blurActive = backdrop != null
-    val barColor = if (blurActive) Color.Transparent else colorScheme.surface
+    val barColor = managerScreenBarColor(blurActive)
     Scaffold(
+        containerColor = managerScreenContainerColor(),
         topBar = {
             TopBar(
                 onBack = actions.onBack,
@@ -197,6 +202,7 @@ private fun AppProfileInner(
         modifier = modifier
     ) {
         Card(
+            colors = managerCardColors(),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp)
@@ -306,6 +312,7 @@ private fun AppProfileInner(
 
         if (!isSpecialApp) {
             Card(
+                colors = managerCardColors(),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 12.dp)
@@ -393,6 +400,7 @@ private fun AppProfileInner(
             exit = fadeOut() + shrinkVertically()
         ) {
             Card(
+                colors = managerCardColors(),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 12.dp)
@@ -430,6 +438,7 @@ private fun AppProfileInner(
             exit = fadeOut() + shrinkVertically()
         ) {
             Card(
+                colors = managerCardColors(),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 12.dp)
@@ -456,6 +465,7 @@ private fun AppProfileInner(
                 modifier = Modifier.padding(top = 4.dp)
             )
             Card(
+                colors = managerCardColors(),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 12.dp)
@@ -598,6 +608,7 @@ private fun ProfileBox(
     }
     val selectedIndex = modesAndTitles.indexOfFirst { it.first == mode }
     Card(
+        colors = managerCardColors(),
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp),
