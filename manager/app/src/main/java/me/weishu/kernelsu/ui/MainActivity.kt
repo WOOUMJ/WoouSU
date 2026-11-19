@@ -9,6 +9,7 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -569,15 +570,18 @@ private fun SecondaryScreen(content: @Composable () -> Unit) {
         UiMode.Material -> MaterialTheme.colorScheme.surfaceContainer
         UiMode.Miuix -> MiuixTheme.colorScheme.surface
     }
+    val bitmap = rememberManagerBackgroundBitmap()
+    val opacity = appearance.backgroundOpacity
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(surface)
     ) {
-        ManagerBackground(
-            path = appearance.backgroundImagePath,
-            opacity = appearance.backgroundOpacity,
-        )
+        if (bitmap != null) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                drawCroppedBackground(bitmap, opacity)
+            }
+        }
         content()
     }
 }

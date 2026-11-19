@@ -50,6 +50,7 @@ fun AboutScreenMiuix(
         topBar = {
             SmallTopAppBar(
                 title = state.title,
+                color = managerScreenBarColor(false),
                 scrollBehavior = topAppBarScrollBehavior,
                 navigationIcon = {
                     IconButton(onClick = actions.onBack) {

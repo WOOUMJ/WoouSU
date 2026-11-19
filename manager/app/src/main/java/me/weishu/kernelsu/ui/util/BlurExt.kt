@@ -24,6 +24,13 @@ import kotlin.math.max
 import kotlin.math.roundToInt
 
 /**
+ * One shared decode target: the wallpaper is drawn by several layers (backdrop, secondary
+ * screens), so keep the last decoded bitmap around instead of hitting the disk again.
+ */
+private var cachedBackgroundPath: String? = null
+private var cachedBackground: ImageBitmap? = null
+
+/**
  * Loads the manager background image so it can be drawn inside a blur backdrop layer.
  * Without this the backdrop only contains an opaque surface color, which makes glass
  * effects look like a solid gray strip when a wallpaper is set.
@@ -32,10 +39,15 @@ import kotlin.math.roundToInt
 fun rememberManagerBackgroundBitmap(): ImageBitmap? {
     val path = LocalManagerAppearance.current.backgroundImagePath
     return remember(path) {
-        if (path.isEmpty()) {
-            null
-        } else {
-            runCatching { BitmapFactory.decodeFile(path) }.getOrNull()?.asImageBitmap()
+        when {
+            path.isEmpty() -> null
+            path == cachedBackgroundPath -> cachedBackground
+            else -> runCatching { BitmapFactory.decodeFile(path) }.getOrNull()
+                ?.asImageBitmap()
+                ?.also {
+                    cachedBackgroundPath = path
+                    cachedBackground = it
+                }
         }
     }
 }
