@@ -80,6 +80,8 @@ fun ColorPaletteScreen() {
         onPickStatusImage = { statusImageLauncher.launch("image/*") },
         onRemoveStatusImage = viewModel::removeStatusImage,
         onSetStatusText = viewModel::setStatusText,
+        onSetStatusCardScale = viewModel::setStatusCardScale,
+        onSetStatusCardShowIcon = viewModel::setStatusCardShowIcon,
     )
 
     when (LocalUiMode.current) {

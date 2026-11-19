@@ -12,7 +12,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import me.weishu.kernelsu.Natives
 import me.weishu.kernelsu.R
 import me.weishu.kernelsu.ui.component.miuix.EditText
-import top.yukonga.miuix.kmp.preference.SwitchPreference
+import me.weishu.kernelsu.ui.component.miuix.ManagerSwitchPreference
 
 @Composable
 fun AppProfileConfigMiuix(
@@ -32,7 +32,7 @@ fun AppProfileConfigMiuix(
             )
         }
 
-        SwitchPreference(
+        ManagerSwitchPreference(
             title = stringResource(R.string.profile_umount_modules),
             summary = stringResource(R.string.profile_umount_modules_summary),
             checked = if (enabled) {

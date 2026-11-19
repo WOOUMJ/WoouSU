@@ -197,6 +197,14 @@ class SettingsRepositoryImpl : SettingsRepository {
         get() = prefs.getString("status_image_path", "") ?: ""
         set(value) = prefs.edit { putString("status_image_path", value) }
 
+    override var statusCardScale: Float
+        get() = prefs.getFloat("status_card_scale", 1f).coerceIn(0.7f, 3f)
+        set(value) = prefs.edit { putFloat("status_card_scale", value.coerceIn(0.7f, 3f)) }
+
+    override var statusCardShowIcon: Boolean
+        get() = prefs.getBoolean("status_card_show_icon", true)
+        set(value) = prefs.edit { putBoolean("status_card_show_icon", value) }
+
     override val intentToken: String
         get() {
         val existing = prefs.getString(INTENT_TOKEN_KEY, null)

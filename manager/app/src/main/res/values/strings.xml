@@ -195,6 +195,10 @@
     <string name="settings_status_text_default">Default: Working</string>
     <string name="settings_status_text_dialog_title">Custom status text</string>
     <string name="settings_status_text_hint">Leave empty to use the default text</string>
+    <string name="settings_status_card_scale">Status card size</string>
+    <string name="settings_status_card_scale_summary">Adjust the size of the "Working" status card</string>
+    <string name="settings_status_show_icon">Show check circle</string>
+    <string name="settings_status_show_icon_summary">Show the check mark and circle on the card when a background image is set</string>
     <string name="settings_enable_predictive_back">Predictive back gesture</string>
     <string name="settings_enable_predictive_back_summary">Enable predictive back gesture support.</string>
     <string name="settings_enable_swipe_dismiss">Swipe back gesture</string>

@@ -282,7 +282,9 @@ private fun StatusCard(
         } else null
 
         Surface(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height((72 * appearance.statusCardScale.coerceIn(0.7f, 3f)).dp),
             color = containerColor,
             contentColor = contentColor,
             shape = MaterialTheme.shapes.large,
@@ -304,8 +306,12 @@ private fun StatusCard(
                 }
                 ListItem(
                 modifier = Modifier,
-                leadingContent = {
-                    Icon(statusIcon, contentDescription = statusTitle)
+                leadingContent = if (hasCardImage && !appearance.statusCardShowIcon) {
+                    null
+                } else {
+                    {
+                        Icon(statusIcon, contentDescription = statusTitle)
+                    }
                 },
                 trailingContent = statusTrailing,
                 overlineContent = null,

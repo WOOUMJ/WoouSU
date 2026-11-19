@@ -69,7 +69,9 @@ data class SettingsUiState(
     val backgroundOpacity: Float = 0.7f,
     val uiOpacity: Float = 0.5f,
     val statusText: String = "",
-    val statusImagePath: String = ""
+    val statusImagePath: String = "",
+    val statusCardScale: Float = 1f,
+    val statusCardShowIcon: Boolean = true
 )
 
 @Immutable

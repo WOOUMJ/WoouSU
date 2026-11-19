@@ -288,7 +288,9 @@ private fun StatusCard(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Card(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height((110 * appearance.statusCardScale.coerceIn(0.7f, 3f)).dp),
                         colors = CardDefaults.defaultColors(
                             color = if (statusCardImage.isNotEmpty()) {
                                 Color.Transparent
@@ -319,22 +321,24 @@ private fun StatusCard(
                                         .clip(RoundedCornerShape(16.dp)),
                                 )
                             }
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .offset(27.dp, 31.dp),
-                                contentAlignment = Alignment.BottomEnd
-                            ) {
-                                Icon(
-                                    modifier = Modifier.size(110.dp),
-                                    imageVector = Icons.Rounded.CheckCircleOutline,
-                                    tint = if (isDynamicColor) {
-                                        colorScheme.primary.copy(alpha = 0.8f)
-                                    } else {
-                                        Color(0xFF36D167)
-                                    },
-                                    contentDescription = null
-                                )
+                            if (statusCardImage.isEmpty() || appearance.statusCardShowIcon) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .offset(27.dp, 31.dp),
+                                    contentAlignment = Alignment.BottomEnd
+                                ) {
+                                    Icon(
+                                        modifier = Modifier.size(110.dp),
+                                        imageVector = Icons.Rounded.CheckCircleOutline,
+                                        tint = if (isDynamicColor) {
+                                            colorScheme.primary.copy(alpha = 0.8f)
+                                        } else {
+                                            Color(0xFF36D167)
+                                        },
+                                        contentDescription = null
+                                    )
+                                }
                             }
                             if (workingMode != null) {
                                 Box(

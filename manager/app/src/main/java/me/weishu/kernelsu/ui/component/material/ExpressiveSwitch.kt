@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import me.weishu.kernelsu.ui.component.managerBlockColor
 
 @Composable
 fun ExpressiveSwitch(
@@ -49,6 +50,8 @@ fun ExpressiveSwitch(
 fun expressiveSwitchColors(
     checkedIconColor: Color = MaterialTheme.colorScheme.primary,
     uncheckedIconColor: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
+    checkedTrackColor: Color = managerBlockColor(MaterialTheme.colorScheme.primary),
+    uncheckedTrackColor: Color = managerBlockColor(MaterialTheme.colorScheme.surfaceContainerHighest),
     disabledCheckedThumbColor: Color = MaterialTheme.colorScheme.surface.copy(alpha = 0.38f),
     disabledCheckedTrackColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
     disabledCheckedIconColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
@@ -59,6 +62,8 @@ fun expressiveSwitchColors(
 ): SwitchColors = SwitchDefaults.colors(
     checkedIconColor = checkedIconColor,
     uncheckedIconColor = uncheckedIconColor,
+    checkedTrackColor = checkedTrackColor,
+    uncheckedTrackColor = uncheckedTrackColor,
     disabledCheckedThumbColor = disabledCheckedThumbColor,
     disabledCheckedTrackColor = disabledCheckedTrackColor,
     disabledCheckedIconColor = disabledCheckedIconColor,

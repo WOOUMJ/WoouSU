@@ -9,6 +9,7 @@ import androidx.compose.material3.ToggleButtonShapes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import me.weishu.kernelsu.ui.component.managerBlockColor
 
 @Composable
 fun ExpressiveToggleButton(
@@ -33,9 +34,9 @@ fun ExpressiveToggleButton(
 
 @Composable
 fun expressiveToggleButtonColors(
-    checkedContainerColor: Color = MaterialTheme.colorScheme.primary,
+    checkedContainerColor: Color = managerBlockColor(MaterialTheme.colorScheme.primary),
     checkedContentColor: Color = MaterialTheme.colorScheme.onPrimary,
-    containerColor: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
+    containerColor: Color = managerBlockColor(MaterialTheme.colorScheme.surfaceContainerHighest),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
 ): ToggleButtonColors = ToggleButtonDefaults.colors(
     checkedContainerColor = checkedContainerColor,

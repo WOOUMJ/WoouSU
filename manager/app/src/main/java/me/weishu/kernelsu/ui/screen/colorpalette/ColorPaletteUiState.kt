@@ -39,4 +39,6 @@ data class ColorPaletteScreenActions(
     val onPickStatusImage: () -> Unit,
     val onRemoveStatusImage: () -> Unit,
     val onSetStatusText: (String) -> Unit,
+    val onSetStatusCardScale: (Float) -> Unit,
+    val onSetStatusCardShowIcon: (Boolean) -> Unit,
 )

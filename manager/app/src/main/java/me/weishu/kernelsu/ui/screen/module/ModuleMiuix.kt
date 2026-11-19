@@ -110,6 +110,7 @@ import me.weishu.kernelsu.ui.component.ScrollToTopOnChange
 import me.weishu.kernelsu.ui.component.SearchStatus
 import me.weishu.kernelsu.ui.component.dialog.rememberConfirmDialog
 import me.weishu.kernelsu.ui.component.managerBlockColor
+import me.weishu.kernelsu.ui.component.managerSwitchColors
 import me.weishu.kernelsu.ui.component.dialog.rememberLoadingDialog
 import me.weishu.kernelsu.ui.component.miuix.SearchBarFake
 import me.weishu.kernelsu.ui.component.miuix.SearchBox
@@ -774,9 +775,9 @@ fun ModuleItem(
     onAddActionShortcut: (ShortcutType) -> Unit,
     onOpenWebUi: () -> Unit
 ) {
-    val secondaryContainer = colorScheme.secondaryContainer.copy(alpha = 0.8f)
+    val secondaryContainer = managerBlockColor(colorScheme.secondaryContainer.copy(alpha = 0.8f))
     val actionIconTint = colorScheme.onSurface.copy(alpha = if (isInDarkTheme()) 0.7f else 0.9f)
-    val updateBg = colorScheme.tertiaryContainer.copy(alpha = 0.6f)
+    val updateBg = managerBlockColor(colorScheme.tertiaryContainer.copy(alpha = 0.6f))
     val updateTint = colorScheme.onTertiaryContainer.copy(alpha = 0.8f)
     val hasUpdate = updateUrl.isNotEmpty()
     val textDecoration = if (module.remove) TextDecoration.LineThrough else null
@@ -882,6 +883,7 @@ fun ModuleItem(
             Switch(
                 enabled = !module.update,
                 checked = module.enabled,
+                colors = managerSwitchColors(),
                 onCheckedChange = {
                     if (it != module.enabled) onCheckChanged(it)
                 }
@@ -1025,11 +1027,7 @@ fun ModuleItem(
                 minHeight = 35.dp,
                 minWidth = 35.dp,
                 onClick = if (module.remove) onUndoUninstall else onUninstall,
-                backgroundColor = if (module.remove) {
-                    secondaryContainer.copy(alpha = 0.8f)
-                } else {
-                    secondaryContainer
-                },
+                backgroundColor = secondaryContainer,
             ) {
                 val animatedPadding by animateDpAsState(
                     targetValue = if (!hasUpdate) 10.dp else 0.dp,

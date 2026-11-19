@@ -52,6 +52,7 @@ import me.weishu.kernelsu.R
 import me.weishu.kernelsu.ui.component.AppIconImage
 import me.weishu.kernelsu.ui.component.ListPopupDefaults
 import me.weishu.kernelsu.ui.component.miuix.DropdownItem
+import me.weishu.kernelsu.ui.component.miuix.ManagerSwitchPreference
 import me.weishu.kernelsu.ui.component.profile.AppProfileConfig
 import me.weishu.kernelsu.ui.component.profile.RootProfileConfig
 import me.weishu.kernelsu.ui.component.profile.TemplateConfig
@@ -310,7 +311,7 @@ private fun AppProfileInner(
                     .padding(horizontal = 12.dp)
                     .padding(bottom = 12.dp),
             ) {
-                SwitchPreference(
+                ManagerSwitchPreference(
                     startAction = {
                         Icon(
                             imageVector = Icons.Rounded.Security,

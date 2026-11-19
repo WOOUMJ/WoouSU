@@ -217,7 +217,19 @@ fun FloatingBottomBar(
     val accentColor = MiuixTheme.colorScheme.primary
     val tabContentColor = MiuixTheme.colorScheme.onSurface
     val surfaceContainer = MiuixTheme.colorScheme.surfaceContainer
-    val containerColor = if (isBlurEnabled) surfaceContainer.copy(0.4f) else surfaceContainer
+    val appearance = LocalManagerAppearance.current
+    // Keep liquid glass enabled even with a manager background image: the backdrop
+    // layer now contains the wallpaper, so the glass samples it instead of an
+    // opaque surface. The surface tint follows the block opacity so the bar never
+    // becomes fully transparent.
+    val glassEnabled = isBlurEnabled
+    val containerColor = if (appearance.hasBackground) {
+        surfaceContainer.copy(alpha = appearance.uiOpacity)
+    } else if (glassEnabled) {
+        surfaceContainer.copy(0.4f)
+    } else {
+        surfaceContainer
+    }
 
     val tabsBackdrop = rememberLayerBackdrop()
     val density = LocalDensity.current
@@ -353,7 +365,7 @@ fun FloatingBottomBar(
                     ),
                 )
                 .then(
-                    if (isBlurEnabled) {
+                    if (glassEnabled) {
                         Modifier.drawBackdrop(
                             backdrop = backdrop,
                             shape = { pillShape },
@@ -380,7 +392,7 @@ fun FloatingBottomBar(
                     }
                 )
                 .then(
-                    if (isBlurEnabled) {
+                    if (glassEnabled) {
                         interactiveHighlight.modifier.then(interactiveHighlight.gestureModifier)
                     } else Modifier
                 )
@@ -394,7 +406,7 @@ fun FloatingBottomBar(
             }
         }
 
-        if (isBlurEnabled) {
+        if (glassEnabled) {
             CompositionLocalProvider(
                 LocalFloatingBottomBarTabScale provides {
                     lerp(1f, 1.2f, dampedDragAnimation.pressProgress)
@@ -431,7 +443,7 @@ fun FloatingBottomBar(
 
         if (tabWidthPx > 0f) {
             val tabWidthDp = with(density) { tabWidthPx.toDp() }
-            if (isBlurEnabled) {
+            if (glassEnabled) {
                 Box(
                     Modifier
                         .padding(horizontal = 4.dp)

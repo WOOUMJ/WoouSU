@@ -14,7 +14,6 @@ import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
@@ -27,6 +26,7 @@ import me.weishu.kernelsu.ui.LocalMainPagerState
 import me.weishu.kernelsu.ui.component.FloatingBottomBar
 import me.weishu.kernelsu.ui.component.FloatingBottomBarItem
 import me.weishu.kernelsu.ui.component.LocalManagerAppearance
+import me.weishu.kernelsu.ui.component.managerBlockColor
 import me.weishu.kernelsu.ui.theme.LocalEnableFloatingBottomBar
 import me.weishu.kernelsu.ui.theme.LocalEnableFloatingBottomBarBlur
 import me.weishu.kernelsu.ui.util.BlurredBar
@@ -67,7 +67,7 @@ fun BottomBarMiuix(
             NavigationBar(
                 modifier = modifier,
                 color = when {
-                    blurBackdrop != null || hasBackground -> Color.Transparent
+                    blurBackdrop != null || hasBackground -> managerBlockColor(MiuixTheme.colorScheme.surface)
                     else -> MiuixTheme.colorScheme.surface
                 },
                 content = {

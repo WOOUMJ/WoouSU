@@ -35,6 +35,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.MenuOpen
 import androidx.compose.material.icons.rounded.AspectRatio
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.BlurOn
 import androidx.compose.material.icons.rounded.CallToAction
 import androidx.compose.material.icons.rounded.Colorize
@@ -78,6 +79,7 @@ import me.weishu.kernelsu.R
 import me.weishu.kernelsu.ui.component.LocalManagerAppearance
 import me.weishu.kernelsu.ui.component.bottombar.useNavigationRail
 import me.weishu.kernelsu.ui.component.managerBlockColor
+import me.weishu.kernelsu.ui.component.miuix.ManagerSwitchPreference
 import me.weishu.kernelsu.ui.component.miuix.ScaleDialog
 import me.weishu.kernelsu.ui.theme.LocalEnableBlur
 import me.weishu.kernelsu.ui.theme.keyColorOptions
@@ -94,6 +96,7 @@ import top.yukonga.miuix.kmp.basic.Scaffold
 import top.yukonga.miuix.kmp.basic.Slider
 import top.yukonga.miuix.kmp.basic.SliderDefaults
 import top.yukonga.miuix.kmp.basic.TabRow
+import top.yukonga.miuix.kmp.basic.TabRowDefaults
 import top.yukonga.miuix.kmp.basic.Text
 import top.yukonga.miuix.kmp.basic.TextButton
 import top.yukonga.miuix.kmp.basic.TextField
@@ -192,6 +195,10 @@ fun ColorPaletteScreenMiuix(
                         onTabSelected = { index ->
                             actions.onSetThemeMode(index)
                         },
+                        colors = TabRowDefaults.tabRowColors(
+                            backgroundColor = managerBlockColor(colorScheme.surface),
+                            selectedBackgroundColor = managerBlockColor(colorScheme.surfaceContainer),
+                        ),
                     )
 
                     Card(
@@ -202,7 +209,7 @@ fun ColorPaletteScreenMiuix(
                             color = managerBlockColor(colorScheme.surfaceContainer)
                         ),
                     ) {
-                        SwitchPreference(
+                        ManagerSwitchPreference(
                             title = stringResource(id = R.string.settings_monet),
                             startAction = {
                                 Icon(
@@ -312,7 +319,7 @@ fun ColorPaletteScreenMiuix(
                         ),
                     ) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            SwitchPreference(
+                            ManagerSwitchPreference(
                                 title = stringResource(id = R.string.settings_enable_blur),
                                 summary = stringResource(id = R.string.settings_enable_blur_summary),
                                 startAction = {
@@ -329,7 +336,7 @@ fun ColorPaletteScreenMiuix(
                                 }
                             )
                         }
-                        SwitchPreference(
+                        ManagerSwitchPreference(
                             title = stringResource(id = R.string.settings_floating_bottom_bar),
                             summary = stringResource(id = R.string.settings_floating_bottom_bar_summary),
                             startAction = {
@@ -346,7 +353,7 @@ fun ColorPaletteScreenMiuix(
                             }
                         )
                         AnimatedVisibility(visible = uiState.enableFloatingBottomBar && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            SwitchPreference(
+                            ManagerSwitchPreference(
                                 title = stringResource(id = R.string.settings_enable_glass),
                                 summary = stringResource(id = R.string.settings_enable_glass_summary),
                                 startAction = {
@@ -363,7 +370,7 @@ fun ColorPaletteScreenMiuix(
                                 }
                             )
                         }
-                        SwitchPreference(
+                        ManagerSwitchPreference(
                             title = stringResource(id = R.string.settings_navigation_badge),
                             summary = stringResource(id = R.string.settings_navigation_badge_summary),
                             startAction = {
@@ -540,6 +547,51 @@ fun ColorPaletteScreenMiuix(
                                 showStatusTextDialog = true
                             }
                         )
+                        var statusCardScaleValue by remember(uiState.statusCardScale) {
+                            mutableFloatStateOf(uiState.statusCardScale)
+                        }
+                        BasicComponent(
+                            title = stringResource(id = R.string.settings_status_card_scale),
+                            summary = stringResource(id = R.string.settings_status_card_scale_summary),
+                            startAction = {
+                                Icon(
+                                    Icons.Rounded.AspectRatio,
+                                    modifier = Modifier.padding(end = 6.dp),
+                                    contentDescription = stringResource(id = R.string.settings_status_card_scale),
+                                    tint = colorScheme.onBackground
+                                )
+                            },
+                            endActions = {
+                                Text(
+                                    text = "${(statusCardScaleValue * 100).toInt()}%",
+                                    color = colorScheme.onSurfaceVariantActions,
+                                )
+                            },
+                            bottomAction = {
+                                Slider(
+                                    value = statusCardScaleValue,
+                                    onValueChange = {
+                                        statusCardScaleValue = it
+                                        actions.onSetStatusCardScale(it)
+                                    },
+                                    valueRange = 0.7f..3f,
+                                )
+                            }
+                        )
+                        ManagerSwitchPreference(
+                            title = stringResource(id = R.string.settings_status_show_icon),
+                            summary = stringResource(id = R.string.settings_status_show_icon_summary),
+                            checked = uiState.statusCardShowIcon,
+                            onCheckedChange = actions.onSetStatusCardShowIcon,
+                            startAction = {
+                                Icon(
+                                    Icons.Rounded.Check,
+                                    modifier = Modifier.padding(end = 6.dp),
+                                    contentDescription = stringResource(id = R.string.settings_status_show_icon),
+                                    tint = colorScheme.onBackground
+                                )
+                            }
+                        )
                     }
 
                     Card(
@@ -551,7 +603,7 @@ fun ColorPaletteScreenMiuix(
                         ),
                     ) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                            SwitchPreference(
+                            ManagerSwitchPreference(
                                 title = stringResource(id = R.string.settings_enable_predictive_back),
                                 summary = stringResource(id = R.string.settings_enable_predictive_back_summary),
                                 startAction = {
@@ -568,7 +620,7 @@ fun ColorPaletteScreenMiuix(
                                 }
                             )
                         }
-                        SwitchPreference(
+                        ManagerSwitchPreference(
                             title = stringResource(id = R.string.settings_enable_swipe_dismiss),
                             summary = stringResource(id = R.string.settings_enable_swipe_dismiss_summary),
                             startAction = {
