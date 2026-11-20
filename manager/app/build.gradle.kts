@@ -60,6 +60,12 @@ val baseCFlags = listOf(
 )
 val baseCppFlags = baseCFlags + "-fno-rtti"
 
+// 内嵌 LKM 的实际版本，仅在重新编译 LKM 时更新；不能跟随管理器 VERSION 变化。
+val bundledLkmVersionCode = run {
+    val file = rootProject.file("../LKM_VERSION")
+    if (file.isFile) file.readText().trim().toIntOrNull() ?: 0 else 0
+}
+
 android {
     namespace = "me.weishu.kernelsu"
 
@@ -149,6 +155,7 @@ android {
         applicationId = managerPackageName
 
         buildConfigField("boolean", "IS_PR_BUILD", isPrBuild.toString())
+        buildConfigField("int", "BUNDLED_LKM_VERSION_CODE", bundledLkmVersionCode.toString())
         resValue("string", "app_name", managerName)
 
         externalNativeBuild {
@@ -186,6 +193,45 @@ base {
         "${managerName.replace(" ", "_")}_${managerVersionName}_${managerVersionCode}"
     )
 }
+
+// The version module scripts see (KSU_VER_CODE) is baked into the bundled
+// userspace ksud, not into BuildConfig. Bumping VERSION without rebuilding
+// libksud.so makes modules report a stale "manager" version again (e.g. 30001).
+// Fail the build instead of silently shipping a mismatched binary.
+val bundledKsud by lazy { file("src/main/jniLibs/arm64-v8a/libksud.so") }
+
+val checkBundledKsudVersion = tasks.register("checkBundledKsudVersion") {
+    val expectedVersion = managerVersionCode.toString()
+    inputs.file(rootProject.file("../VERSION"))
+    if (bundledKsud.isFile) inputs.file(bundledKsud)
+    doLast {
+        if (!bundledKsud.isFile) {
+            throw GradleException("缺少内置 ksud：${bundledKsud.absolutePath}")
+        }
+        val bytes = bundledKsud.readBytes()
+        val needle = expectedVersion.toByteArray(Charsets.US_ASCII)
+        var matched = false
+        outer@ for (i in 0..bytes.size - needle.size) {
+            for (j in needle.indices) {
+                if (bytes[i + j] != needle[j]) continue@outer
+            }
+            matched = true
+            break
+        }
+        if (!matched) {
+            throw GradleException(
+                "内置 ksud 版本与 VERSION ($expectedVersion) 不一致。" +
+                    "请先重新编译 userspace/ksud 并替换 " +
+                    "manager/app/src/main/jniLibs/arm64-v8a/libksud.so，避免模块读到 30001 等旧版本号。"
+            )
+        }
+    }
+}
+
+tasks.named("preBuild") {
+    dependsOn(checkBundledKsudVersion)
+}
+
 
 dependencies {
     implementation(libs.androidx.activity.compose)

@@ -88,6 +88,8 @@ import me.weishu.kernelsu.ui.screen.modulerepo.ModuleRepoScreen
 import me.weishu.kernelsu.ui.screen.scriptrun.ScriptRunScreen
 import me.weishu.kernelsu.ui.screen.settings.SettingPager
 import me.weishu.kernelsu.ui.screen.sulog.SulogScreen
+import me.weishu.kernelsu.ui.screen.hook.HookScreen
+import me.weishu.kernelsu.ui.screen.kpm.KpmScreen
 import me.weishu.kernelsu.ui.screen.superuser.SuperUserPager
 import me.weishu.kernelsu.ui.screen.template.AppProfileTemplateScreen
 import me.weishu.kernelsu.ui.screen.templateeditor.TemplateEditorScreen
@@ -230,6 +232,8 @@ class MainActivity : ComponentActivity() {
                             entry<Route.Main>(swipeDismiss = swipeDismiss) { mainScreenEntry() }
                             entry<Route.About>(swipeDismiss = swipeDismiss) { SecondaryScreen { AboutScreen() } }
                             entry<Route.Sulog>(swipeDismiss = swipeDismiss) { SecondaryScreen { SulogScreen() } }
+                            entry<Route.Hook>(swipeDismiss = swipeDismiss) { SecondaryScreen { HookScreen() } }
+                            entry<Route.Kpm>(swipeDismiss = swipeDismiss) { SecondaryScreen { KpmScreen() } }
                             entry<Route.ColorPalette>(swipeDismiss = swipeDismiss) { SecondaryScreen { ColorPaletteScreen() } }
                             entry<Route.AppProfileTemplate>(swipeDismiss = swipeDismiss) { SecondaryScreen { AppProfileTemplateScreen() } }
                             entry<Route.TemplateEditor>(swipeDismiss = swipeDismiss) { key -> SecondaryScreen { TemplateEditorScreen(key.template, key.readOnly) } }

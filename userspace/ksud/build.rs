@@ -9,6 +9,24 @@ const BOOTSTRAP_SOURCE: &str = "src/lkm_image_bootstrap.S";
 const BOOTSTRAP_OBJECT: &str = "lkm_image_bootstrap.o";
 const PREPARED_BOOTSTRAP_OBJECT: &str = ".lkm_image_bootstrap.o";
 
+fn get_version() -> Result<(u32, String), std::io::Error> {
+    // Single source of truth: the repository VERSION file also drives the
+    // kernel driver and the manager APK version code. Falling back to the git
+    // commit count would make ksud report a different KSU_VER_CODE than the
+    // driver built from the same tree.
+    let manifest_dir = PathBuf::from(
+        env::var("CARGO_MANIFEST_DIR").map_err(|e| std::io::Error::other(e.to_string()))?,
+    );
+    let version_file = manifest_dir.join("../../VERSION");
+    if let Ok(contents) = fs::read_to_string(&version_file) {
+        let trimmed = contents.trim();
+        if let Ok(code) = trimmed.parse::<u32>() {
+            return Ok((code, trimmed.to_string()));
+        }
+    }
+    get_git_version()
+}
+
 fn get_git_version() -> Result<(u32, String), std::io::Error> {
     let output = Command::new("git")
         .args(["rev-list", "--count", "HEAD"])
@@ -223,9 +241,10 @@ fn assemble_bootstrap() {
 }
 
 fn main() {
+    println!("cargo:rerun-if-changed=../../VERSION");
     assemble_bootstrap();
 
-    let (code, name) = match get_git_version() {
+    let (code, name) = match get_version() {
         Ok((code, name)) => (code, name),
         Err(_) => {
             // show warning if git is not installed

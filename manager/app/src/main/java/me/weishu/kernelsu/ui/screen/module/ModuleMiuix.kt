@@ -103,6 +103,7 @@ import me.weishu.kernelsu.R
 import me.weishu.kernelsu.data.model.Module
 import me.weishu.kernelsu.data.model.ModuleUpdateInfo
 import me.weishu.kernelsu.data.repository.isSoftRebootPreferred
+import me.weishu.kernelsu.ui.component.KpmEntryCardMiuix
 import me.weishu.kernelsu.ui.component.ListPopupDefaults
 import me.weishu.kernelsu.ui.component.LocalManagerAppearance
 import me.weishu.kernelsu.ui.component.ObserveAsEvents
@@ -115,6 +116,8 @@ import me.weishu.kernelsu.ui.component.dialog.rememberLoadingDialog
 import me.weishu.kernelsu.ui.component.miuix.SearchBarFake
 import me.weishu.kernelsu.ui.component.miuix.SearchBox
 import me.weishu.kernelsu.ui.component.miuix.SearchPager
+import me.weishu.kernelsu.ui.navigation3.LocalNavigator
+import me.weishu.kernelsu.ui.navigation3.Route
 import me.weishu.kernelsu.ui.theme.LocalEnableBlur
 import me.weishu.kernelsu.ui.theme.LocalModuleDescriptionMaxLines
 import me.weishu.kernelsu.ui.theme.isInDarkTheme
@@ -170,6 +173,7 @@ fun ModulePagerMiuix(
 ) {
     val modules = uiState.moduleList
     val searchStatus = uiState.searchStatus
+    val navigator = LocalNavigator.current
 
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
@@ -502,7 +506,7 @@ fun ModulePagerMiuix(
                 contentPadding = contentPadding,
             ) {
                 if (modules.isEmpty()) {
-                    Box(
+                    Column(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(
@@ -511,16 +515,23 @@ fun ModulePagerMiuix(
                                 end = innerPadding.calculateEndPadding(layoutDirection),
                                 bottom = bottomInnerPadding
                             ),
-                        contentAlignment = Alignment.Center
                     ) {
-                        // The refresh indicator doubles as the first-load hint;
-                        // only announce emptiness once loading has finished.
-                        if (uiState.hasLoaded) {
-                            Text(
-                                stringResource(R.string.module_empty),
-                                textAlign = TextAlign.Center,
-                                color = Color.Gray,
-                            )
+                        Box(modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)) {
+                            KpmEntryCardMiuix(onClick = { navigator.push(Route.Kpm) })
+                        }
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            // The refresh indicator doubles as the first-load hint;
+                            // only announce emptiness once loading has finished.
+                            if (uiState.hasLoaded) {
+                                Text(
+                                    stringResource(R.string.module_empty),
+                                    textAlign = TextAlign.Center,
+                                    color = Color.Gray,
+                                )
+                            }
                         }
                     }
                 } else {
@@ -548,6 +559,7 @@ fun ModulePagerMiuix(
                             },
                             contentPadding = contentPadding,
                             listState = listState,
+                            showKpmEntry = true,
                         )
                     }
                 }
@@ -701,15 +713,24 @@ private fun ModuleList(
     onModuleAddShortcut: (Module, ShortcutType) -> Unit,
     contentPadding: PaddingValues,
     listState: LazyListState = rememberLazyListState(),
+    showKpmEntry: Boolean = false,
 ) {
     val loadingDialog = rememberLoadingDialog()
     val scope = rememberCoroutineScope()
+    val navigator = LocalNavigator.current
     LazyColumn(
         state = listState,
         modifier = modifier.fillMaxHeight(),
         contentPadding = contentPadding,
         overscrollEffect = null,
     ) {
+        if (showKpmEntry) {
+            item(key = "kpm_entry") {
+                Box(modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)) {
+                    KpmEntryCardMiuix(onClick = { navigator.push(Route.Kpm) })
+                }
+            }
+        }
         items(
             items = modules,
             key = { it.id },
