@@ -1,6 +1,7 @@
 package me.weishu.kernelsu.ui.screen.home
 
 import androidx.compose.runtime.Immutable
+import me.weishu.kernelsu.BuildConfig
 import me.weishu.kernelsu.KernelVersion
 import me.weishu.kernelsu.ui.util.module.LatestVersionInfo
 
@@ -32,12 +33,19 @@ data class HomeUiState(
         get() = systemInfo.selinuxStatus == "Permissive"
 
     val showLkmUpdate: Boolean
-        get() = isManager &&
-                lkmMode == true &&
-                isLkmBundled &&
-                ksuVersion?.toLong() != currentManagerVersionCode &&
-                !requiresNewKernel &&
-                !requiresNewManager
+        get() {
+            // 管理器版本号会随界面更新上涨，但内嵌 LKM 只有重新编译才会变，
+            // 因此不能拿管理器版本号当“内嵌 LKM 版本”，否则每次界面更新都会误报。
+            val driverVersion = ksuVersion ?: return false
+            val bundledLkmVersion = BuildConfig.BUNDLED_LKM_VERSION_CODE
+            return isManager &&
+                    lkmMode == true &&
+                    isLkmBundled &&
+                    bundledLkmVersion > 0 &&
+                    driverVersion < bundledLkmVersion &&
+                    !requiresNewKernel &&
+                    !requiresNewManager
+        }
 
     // Jailbreak mode runs on locked bootloaders, so flashing a boot image would brick the device.
     val canInstallKernelUpdate: Boolean
@@ -59,6 +67,8 @@ data class HomeUiState(
         get() = isManager &&
                 ksuVersion != null &&
                 ksuVersion.toLong() != currentManagerVersionCode &&
+                // LKM 模式下内核版本由内嵌 LKM 决定，是否可更新已由 showLkmUpdate 判断
+                lkmMode != true &&
                 !showLkmUpdate
 
     val hasUpdate: Boolean

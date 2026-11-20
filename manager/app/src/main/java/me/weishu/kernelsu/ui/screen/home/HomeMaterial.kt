@@ -69,6 +69,7 @@ import me.weishu.kernelsu.BuildConfig
 import me.weishu.kernelsu.KernelVersion
 import me.weishu.kernelsu.Natives
 import me.weishu.kernelsu.R
+import me.weishu.kernelsu.ui.component.HookEntryCardMaterial
 import me.weishu.kernelsu.ui.component.LocalManagerAppearance
 import me.weishu.kernelsu.ui.component.ManagerImage
 import me.weishu.kernelsu.ui.component.WarningLevel
@@ -81,6 +82,8 @@ import me.weishu.kernelsu.ui.component.material.TonalCard
 import me.weishu.kernelsu.ui.component.material.expressiveTopAppBarColors
 import me.weishu.kernelsu.ui.component.rebootlistpopup.RebootListPopup
 import me.weishu.kernelsu.ui.component.statustag.StatusTag
+import me.weishu.kernelsu.ui.navigation3.LocalNavigator
+import me.weishu.kernelsu.ui.navigation3.Route
 
 @Composable
 fun HomePagerMaterial(
@@ -90,6 +93,7 @@ fun HomePagerMaterial(
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     val appearance = LocalManagerAppearance.current
+    val navigator = LocalNavigator.current
 
     ExpressiveScaffold(
         topBar = { TopBar(scrollBehavior = scrollBehavior) },
@@ -149,6 +153,9 @@ fun HomePagerMaterial(
                 state = state,
                 actions = actions,
             )
+            if (state.ksuVersion != null) {
+                HookEntryCardMaterial(onClick = { navigator.push(Route.Hook) })
+            }
             InfoCard(systemInfo = state.systemInfo)
             SupportLinks(onOpenUrl = actions.onOpenUrl)
             Spacer(
