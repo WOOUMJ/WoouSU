@@ -1,0 +1,65 @@
+name: Telegram Notify
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to announce (e.g. v30016)"
+        required: true
+      dry_run:
+        description: "Only build the message, do not send"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build message
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          REPO: ${{ github.repository }}
+          TAG: ${{ github.event.release.tag_name || inputs.tag }}
+          REL_NAME: ${{ github.event.release.name }}
+          REL_URL: ${{ github.event.release.html_url }}
+          REL_BODY: ${{ github.event.release.body }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT" != "release" ]; then
+            curl -fsS -H "Authorization: Bearer $GH_TOKEN" \
+              "https://api.github.com/repos/$REPO/releases/tags/$TAG" -o release.json
+            REL_NAME=$(jq -r '.name // .tag_name' release.json)
+            REL_URL=$(jq -r '.html_url' release.json)
+            REL_BODY=$(jq -r '.body // ""' release.json)
+          fi
+          {
+            echo "WoouSU ${REL_NAME:-$TAG}"
+            echo
+            printf '%s\n' "$REL_BODY"
+            echo
+            echo "下载 / Download: $REL_URL"
+          } > message.txt
+          python3 -c "d=open('message.txt',encoding='utf-8').read();open('message.txt','w',encoding='utf-8').write(d[:3900])"
+          cat message.txt
+
+      - name: Send to Telegram
+        if: ${{ inputs.dry_run != true }}
+        env:
+          TG_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          set -euo pipefail
+          jq -Rs '{chat_id: env.TG_CHAT_ID, text: ., link_preview_options: {is_disabled: false}}' message.txt > payload.json
+          code=$(curl -sS -o resp.json -w '%{http_code}' \
+            -X POST "https://api.telegram.org/bot$TG_BOT_TOKEN/sendMessage" \
+            -H 'Content-Type: application/json' --data-binary @payload.json)
+          cat resp.json || true
+          echo
+          [ "$code" = "200" ] || { echo "Telegram API HTTP $code"; exit 1; }
+          jq -e '.ok == true' resp.json > /dev/null || { echo "Telegram API returned error"; exit 1; }
