@@ -17,6 +17,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.Rule
 import androidx.compose.material.icons.filled.Adb
 import androidx.compose.material.icons.filled.AdminPanelSettings
+import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Description
@@ -126,6 +127,20 @@ fun SettingPagerMaterial(
                                 summary = stringResource(id = R.string.settings_hide_version_mismatch_summary),
                                 checked = uiState.hideVersionMismatch,
                                 onCheckedChange = actions.onSetHideVersionMismatch
+                            )
+                        },
+                        {
+                            SegmentedListItem(
+                                onClick = actions.onOpenDynamicManager,
+                                headlineContent = { Text("动态管理器签名") },
+                                supportingContent = { Text("为其它 root 管理器动态签名并启用") },
+                                leadingContent = { Icon(Icons.Filled.Apps, "动态管理器签名") },
+                                trailingContent = {
+                                    Icon(
+                                        Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                        null
+                                    )
+                                }
                             )
                         }
                     )

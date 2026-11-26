@@ -17,6 +17,7 @@
 #include "ksu.h"
 #include "runtime/ksud_boot.h"
 #include "feature/kernel_umount.h"
+#include "feature/dynamic_manager.h"
 #include "manager/manager_identity.h"
 #include "selinux/selinux.h"
 #include "infra/file_wrapper.h"
@@ -349,8 +350,29 @@ static int do_get_manager_appid(void __user *arg)
     return 0;
 }
 
-static int do_get_app_profile(void __user *arg)
+static int do_dynamic_manager(void __user *arg)
 {
+    struct ksu_dynamic_manager_cmd cmd;
+    int ret;
+
+    if (copy_from_user(&cmd, arg, sizeof(cmd))) {
+        pr_err("dynamic_manager: copy_from_user failed\n");
+        return -EFAULT;
+    }
+
+    ret = ksu_handle_dynamic_manager(&cmd);
+    if (ret)
+        return ret;
+
+    if (cmd.operation == DYNAMIC_MANAGER_OP_GET && copy_to_user(arg, &cmd, sizeof(cmd))) {
+        pr_err("dynamic_manager: copy_to_user failed\n");
+        return -EFAULT;
+    }
+
+    return 0;
+}
+
+static int do_get_app_profile(void __user *arg){
 #ifdef CONFIG_KSU_DISABLE_POLICY
     return -EOPNOTSUPP;
 #endif
@@ -956,6 +978,12 @@ static const struct ksu_ioctl_cmd_map ksu_ioctl_handlers[] = {
         .name = "LOOKUP_SYMBOLS",
         .handler = do_lookup_symbols,
         .perm_check = only_root
+    },
+    {
+        .cmd = KSU_IOCTL_DYNAMIC_MANAGER,
+        .name = "DYNAMIC_MANAGER",
+        .handler = do_dynamic_manager,
+        .perm_check = manager_or_root
     },
     {
         .cmd = 0,

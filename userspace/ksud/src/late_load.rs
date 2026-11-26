@@ -111,6 +111,9 @@ pub fn run(package_name: &String, kmi: Option<String>, allow_shell: bool) -> Res
         warn!("init features failed: {e}");
     }
 
+    // Restore the dynamic manager signature selected before reboot.
+    crate::dynamic_manager::booted_load();
+
     // 8. Execute late-load stage scripts with a shared boot deadline
     let wait = ScriptWait::Until(Instant::now() + defs::BOOT_STAGE_TIMEOUT);
     init_event::run_stage("late-load", wait);

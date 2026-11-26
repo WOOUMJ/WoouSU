@@ -18,6 +18,7 @@ import androidx.compose.material.icons.automirrored.rounded.Article
 import androidx.compose.material.icons.automirrored.rounded.Rule
 import androidx.compose.material.icons.rounded.Adb
 import androidx.compose.material.icons.rounded.AdminPanelSettings
+import androidx.compose.material.icons.rounded.Apps
 import androidx.compose.material.icons.rounded.BugReport
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Description
@@ -206,6 +207,19 @@ fun SettingPagerMiuix(
                                 )
                             },
                             onClick = actions.onOpenTheme
+                        )
+                        ArrowPreference(
+                            title = "动态管理器签名",
+                            summary = "为其它 root 管理器动态签名并启用",
+                            startAction = {
+                                Icon(
+                                    Icons.Rounded.Apps,
+                                    modifier = Modifier.padding(end = 6.dp),
+                                    contentDescription = "动态管理器签名",
+                                    tint = colorScheme.onBackground
+                                )
+                            },
+                            onClick = actions.onOpenDynamicManager
                         )
                         ArrowPreference(
                             title = stringResource(id = R.string.settings_export_config),

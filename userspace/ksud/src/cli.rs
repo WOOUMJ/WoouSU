@@ -9,8 +9,8 @@ use crate::boot_patch::{BootPatchArgs, BootRestoreArgs};
 use crate::lkm_image::BootPatchV2Args;
 use crate::module::regenerate_preinit;
 use crate::{
-    apk_sign, assets, debug, defs, init_event, ksu_uapi, ksucalls, module, module_config, sulog,
-    utils,
+    apk_sign, assets, debug, defs, dynamic_manager, init_event, ksu_uapi, ksucalls, module,
+    module_config, sulog, utils,
 };
 
 /// WoouSU userspace cli
@@ -476,6 +476,35 @@ enum Kernel {
     },
     /// Notify that module is mounted
     NotifyModuleMounted,
+    /// Manage dynamic manager signature
+    DynamicManager {
+        #[command(subcommand)]
+        command: DynamicManagerOp,
+    },
+}
+
+#[derive(clap::Subcommand, Debug)]
+enum DynamicManagerOp {
+    /// Show the current dynamic manager signature
+    Get {
+        /// Print machine-readable JSON
+        #[arg(long)]
+        json: bool,
+    },
+    /// Set the signature from an installed APK
+    SetApk {
+        /// Path to the APK (e.g. /data/app/.../base.apk)
+        apk: String,
+    },
+    /// Set the signature manually
+    Set {
+        /// Certificate size in bytes, decimal or 0x-prefixed hex
+        size: String,
+        /// Certificate SHA-256 (lowercase hex)
+        hash: String,
+    },
+    /// Clear the dynamic signature and restore the WoouSU manager
+    Clear,
 }
 
 #[derive(clap::Subcommand, Debug)]
@@ -501,6 +530,16 @@ enum UmountOp {
 enum Initrc {
     /// Regenerate preinit rc file and preinit dirs
     Refresh,
+}
+
+fn parse_size(value: &str) -> Result<u32> {
+    let value = value.trim();
+    let parsed = if let Some(hex) = value.strip_prefix("0x").or_else(|| value.strip_prefix("0X")) {
+        u32::from_str_radix(hex, 16)
+    } else {
+        value.parse()
+    };
+    parsed.with_context(|| format!("invalid size: {value}"))
 }
 
 pub fn run() -> Result<()> {
@@ -828,6 +867,35 @@ pub fn run() -> Result<()> {
                 ksucalls::report_module_mounted();
                 Ok(())
             }
+            Kernel::DynamicManager { command } => match command {
+                DynamicManagerOp::Get { json } => {
+                    let (size, hash) = dynamic_manager::get()?;
+                    if json {
+                        println!("{}", serde_json::json!({ "size": size, "hash": hash }));
+                    } else if size == 0 {
+                        println!("dynamic manager: disabled");
+                    } else {
+                        println!("dynamic manager: size=0x{size:x} hash={hash}");
+                    }
+                    Ok(())
+                }
+                DynamicManagerOp::SetApk { apk } => {
+                    dynamic_manager::set_apk(&apk)?;
+                    println!("dynamic manager: signature updated from {apk}");
+                    Ok(())
+                }
+                DynamicManagerOp::Set { size, hash } => {
+                    let size = parse_size(&size)?;
+                    dynamic_manager::set(size, &hash)?;
+                    println!("dynamic manager: applied size=0x{size:x}");
+                    Ok(())
+                }
+                DynamicManagerOp::Clear => {
+                    dynamic_manager::clear()?;
+                    println!("dynamic manager: cleared");
+                    Ok(())
+                }
+            },
         },
         Commands::Initrc { command } => match command {
             Initrc::Refresh => regenerate_preinit(),

@@ -176,6 +176,18 @@ static const __u8 KSU_UMOUNT_WIPE = 0; /* ignore everything and wipe list */
 static const __u8 KSU_UMOUNT_ADD = 1; /* add entry (path + flags) */
 static const __u8 KSU_UMOUNT_DEL = 2; /* delete entry, strcmp */
 
+/* Dynamic manager signature */
+static const __u8 DYNAMIC_MANAGER_OP_SET = 0; /* set dynamic manager signature */
+static const __u8 DYNAMIC_MANAGER_OP_GET = 1; /* get current dynamic manager signature */
+static const __u8 DYNAMIC_MANAGER_OP_WIPE = 2; /* clear dynamic manager signature */
+static const __u8 DYNAMIC_MANAGER_OP_SET_SYNCHRONOUS = 3; /* set and rescan immediately */
+
+struct ksu_dynamic_manager_cmd {
+    __u8 operation; /* Input: one of DYNAMIC_MANAGER_OP_* */
+    __u32 size; /* Input/Output: manager certificate size */
+    __u8 hash[64]; /* Input/Output: manager certificate SHA-256 (lowercase hex, no NUL) */
+};
+
 /* IOCTL command definitions */
 static const __u32 KSU_IOCTL_GRANT_ROOT = _IOC(_IOC_NONE, 'K', 1, 0);
 static const __u32 KSU_IOCTL_GET_INFO = _IOR('K', 2, struct ksu_get_info_cmd);
@@ -205,5 +217,6 @@ static const __u32 KSU_IOCTL_SET_INIT_PGRP = _IO('K', 19);
 static const __u32 KSU_IOCTL_GET_SULOG_FD = _IOW('K', 20, struct ksu_get_sulog_fd_cmd);
 static const __u32 KSU_IOCTL_DISABLE_ESCAPE_TO_ROOT = _IO('K', 21);
 static const __u32 KSU_IOCTL_LOOKUP_SYMBOLS = _IOW('K', 22, struct ksu_lookup_symbols_cmd);
+static const __u32 KSU_IOCTL_DYNAMIC_MANAGER = _IOWR('K', 103, struct ksu_dynamic_manager_cmd);
 
 #endif

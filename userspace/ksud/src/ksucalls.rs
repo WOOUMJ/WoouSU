@@ -1,5 +1,5 @@
 #![allow(clippy::unreadable_literal)]
-use anyhow::{Result, bail};
+use anyhow::{Result, bail, ensure};
 
 use crate::ksu_uapi;
 use std::cell::Cell;
@@ -215,6 +215,47 @@ pub fn ensure_uapi_version_matched() -> anyhow::Result<()> {
 
 pub fn grant_root() -> Result<()> {
     ksuctl(ksu_uapi::KSU_IOCTL_GRANT_ROOT, std::ptr::null_mut::<u8>())?;
+    Ok(())
+}
+
+fn dynamic_manager_cmd(
+    operation: u8,
+    size: u32,
+    hash: Option<&str>,
+) -> Result<ksu_uapi::ksu_dynamic_manager_cmd> {
+    let mut cmd = ksu_uapi::ksu_dynamic_manager_cmd {
+        operation,
+        size,
+        hash: [0; 64],
+    };
+    if let Some(hash) = hash {
+        let bytes = hash.as_bytes();
+        ensure!(bytes.len() == 64, "invalid sha256 length: {}", bytes.len());
+        cmd.hash.copy_from_slice(bytes);
+    }
+    ksuctl(ksu_uapi::KSU_IOCTL_DYNAMIC_MANAGER, &raw mut cmd)?;
+    Ok(cmd)
+}
+
+pub fn set_dynamic_manager(size: u32, hash: &str) -> Result<()> {
+    dynamic_manager_cmd(
+        ksu_uapi::DYNAMIC_MANAGER_OP_SET_SYNCHRONOUS,
+        size,
+        Some(hash),
+    )?;
+    Ok(())
+}
+
+pub fn get_dynamic_manager() -> Result<(u32, String)> {
+    let cmd = dynamic_manager_cmd(ksu_uapi::DYNAMIC_MANAGER_OP_GET, 0, None)?;
+    let hash = String::from_utf8_lossy(&cmd.hash)
+        .trim_end_matches('\0')
+        .to_string();
+    Ok((cmd.size, hash))
+}
+
+pub fn clear_dynamic_manager() -> Result<()> {
+    dynamic_manager_cmd(ksu_uapi::DYNAMIC_MANAGER_OP_WIPE, 0, None)?;
     Ok(())
 }
 

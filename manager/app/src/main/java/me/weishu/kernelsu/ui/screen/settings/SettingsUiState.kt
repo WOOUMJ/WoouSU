@@ -95,4 +95,5 @@ data class SettingsScreenActions(
     val onExportConfig: () -> Unit,
     val onImportConfig: () -> Unit,
     val onOpenAbout: () -> Unit,
+    val onOpenDynamicManager: () -> Unit,
 )

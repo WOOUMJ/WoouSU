@@ -31,6 +31,7 @@ ifneq ($(CONFIG_KSU_DISABLE_MANAGER),y)
 kernelsu-objs += manager/apk_sign.o
 kernelsu-objs += manager/pkg_observer.o
 kernelsu-objs += manager/throne_tracker.o
+kernelsu-objs += feature/dynamic_manager.o
 endif
 
 kernelsu-objs += policy/allowlist.o
@@ -64,6 +65,9 @@ ccflags-y += -DCONFIG_KSU_DISABLE_MANAGER=1
 endif
 ifeq ($(CONFIG_KSU_DISABLE_POLICY),y)
 ccflags-y += -DCONFIG_KSU_DISABLE_POLICY=1
+endif
+ifeq ($(CONFIG_KSU_DISABLE_BUILTIN_MANAGER_SIGNATURES),y)
+ccflags-y += -DCONFIG_KSU_DISABLE_BUILTIN_MANAGER_SIGNATURES=1
 endif
 ifeq ($(CONFIG_KSU_DEBUG),y)
 ccflags-y += -DCONFIG_KSU_DEBUG=1

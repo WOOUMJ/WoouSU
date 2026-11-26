@@ -35,6 +35,17 @@ config KSU_DISABLE_POLICY
 	  Escalation will always use the default full root profile, and
 	  non-root handling will follow the global umount policy only.
 
+config KSU_DISABLE_BUILTIN_MANAGER_SIGNATURES
+	bool "Disable built-in third-party manager signatures"
+	depends on KSU && !KSU_DISABLE_MANAGER
+	default n
+	help
+	  KernelSU-family managers from other projects (KernelSU official,
+	  SukiSU, BakaSU, KOWX712, ...) are trusted in addition to WoouSU's own
+	  manager when their signing certificate matches the built-in list.
+	  Enable this to trust only WoouSU's manager plus the dynamic manager
+	  signature selected at runtime.
+
 config KSU_STEALTH
 	bool "Stealth mode (suppress kernel-visible branding and boot logs)"
 	depends on KSU

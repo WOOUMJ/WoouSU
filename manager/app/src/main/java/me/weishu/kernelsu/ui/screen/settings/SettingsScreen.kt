@@ -75,6 +75,7 @@ fun SettingPager(
         onImportConfig = { importConfigLauncher.launch(arrayOf("application/zip", "application/octet-stream")) },
 
         onOpenAbout = { navigator.push(Route.About) },
+        onOpenDynamicManager = { navigator.push(Route.DynamicManager) },
     )
 
     when (LocalUiMode.current) {
