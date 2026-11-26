@@ -46,18 +46,26 @@ data class ManagerCandidate(
     val fingerprint: String get() = "0x%x / %s".format(certSize, certHash)
 }
 
-private suspend fun execKsudCapture(args: String): String = withContext(Dispatchers.IO) {
-    val out = getRootShell().newJob()
-        .add("${getKsudPath()} $args")
-        .to(ArrayList<String>(), null)
-        .exec().out
-    out.joinToString("\n")
+data class ExecResult(val ok: Boolean, val message: String)
+
+private suspend fun runKsud(args: String): ExecResult = withContext(Dispatchers.IO) {
+    withNewRootShell {
+        val out = ArrayList<String>()
+        val err = ArrayList<String>()
+        val result = newJob()
+            .add("${getKsudPath()} $args")
+            .to(out, err)
+            .exec()
+        val detail = (out + err).map { it.trim() }.filter { it.isNotEmpty() }
+        ExecResult(result.isSuccess, detail.joinToString("\n"))
+    }
 }
 
 suspend fun getDynamicManagerConfig(): DynamicManagerConfig? = withContext(Dispatchers.IO) {
-    val raw = execKsudCapture("dynamic-manager get --json").trim()
+    val result = runKsud("dynamic-manager get --json")
+    if (!result.ok) return@withContext null
     runCatching {
-        val obj = jsonParser.parseToJsonElement(raw).jsonObject
+        val obj = jsonParser.parseToJsonElement(result.message.trim()).jsonObject
         DynamicManagerConfig(
             size = obj["size"]?.jsonPrimitive?.longOrNull?.toInt() ?: 0,
             hash = obj["hash"]?.jsonPrimitive?.content.orEmpty(),
@@ -65,18 +73,15 @@ suspend fun getDynamicManagerConfig(): DynamicManagerConfig? = withContext(Dispa
     }.getOrNull()
 }
 
-suspend fun setDynamicManagerFromApk(apkPath: String): Boolean = withContext(Dispatchers.IO) {
+suspend fun setDynamicManagerFromApk(apkPath: String): ExecResult {
     val escaped = apkPath.replace("'", "'\\''")
-    execKsud("dynamic-manager set-apk '$escaped'", true)
+    return runKsud("dynamic-manager set-apk '$escaped'")
 }
 
-suspend fun setDynamicManagerManual(size: Int, hash: String): Boolean = withContext(Dispatchers.IO) {
-    execKsud("dynamic-manager set $size '$hash'", true)
-}
+suspend fun setDynamicManagerManual(size: Int, hash: String): ExecResult =
+    runKsud("dynamic-manager set $size '$hash'")
 
-suspend fun clearDynamicManager(): Boolean = withContext(Dispatchers.IO) {
-    execKsud("dynamic-manager clear", true)
-}
+suspend fun clearDynamicManager(): ExecResult = runKsud("dynamic-manager clear")
 
 private fun extractCert(pkg: PackageInfo): Pair<Int, String>? {
     val signatures = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {

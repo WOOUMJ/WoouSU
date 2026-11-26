@@ -153,6 +153,12 @@ enum Commands {
         #[command(subcommand)]
         command: Initrc,
     },
+
+    /// Manage dynamic manager signature
+    DynamicManager {
+        #[command(subcommand)]
+        command: DynamicManagerOp,
+    },
 }
 
 #[derive(clap::Subcommand, Debug)]
@@ -476,11 +482,6 @@ enum Kernel {
     },
     /// Notify that module is mounted
     NotifyModuleMounted,
-    /// Manage dynamic manager signature
-    DynamicManager {
-        #[command(subcommand)]
-        command: DynamicManagerOp,
-    },
 }
 
 #[derive(clap::Subcommand, Debug)]
@@ -866,35 +867,35 @@ pub fn run() -> Result<()> {
                 ksucalls::report_module_mounted();
                 Ok(())
             }
-            Kernel::DynamicManager { command } => match command {
-                DynamicManagerOp::Get { json } => {
-                    let (size, hash) = dynamic_manager::get()?;
-                    if json {
-                        println!("{}", serde_json::json!({ "size": size, "hash": hash }));
-                    } else if size == 0 {
-                        println!("dynamic manager: disabled");
-                    } else {
-                        println!("dynamic manager: size=0x{size:x} hash={hash}");
-                    }
-                    Ok(())
+        },
+        Commands::DynamicManager { command } => match command {
+            DynamicManagerOp::Get { json } => {
+                let (size, hash) = dynamic_manager::get()?;
+                if json {
+                    println!("{}", serde_json::json!({ "size": size, "hash": hash }));
+                } else if size == 0 {
+                    println!("dynamic manager: disabled");
+                } else {
+                    println!("dynamic manager: size=0x{size:x} hash={hash}");
                 }
-                DynamicManagerOp::SetApk { apk } => {
-                    dynamic_manager::set_apk(&apk)?;
-                    println!("dynamic manager: signature updated from {apk}");
-                    Ok(())
-                }
-                DynamicManagerOp::Set { size, hash } => {
-                    let size = parse_size(&size)?;
-                    dynamic_manager::set(size, &hash)?;
-                    println!("dynamic manager: applied size=0x{size:x}");
-                    Ok(())
-                }
-                DynamicManagerOp::Clear => {
-                    dynamic_manager::clear()?;
-                    println!("dynamic manager: cleared");
-                    Ok(())
-                }
-            },
+                Ok(())
+            }
+            DynamicManagerOp::SetApk { apk } => {
+                dynamic_manager::set_apk(&apk)?;
+                println!("dynamic manager: signature updated from {apk}");
+                Ok(())
+            }
+            DynamicManagerOp::Set { size, hash } => {
+                let size = parse_size(&size)?;
+                dynamic_manager::set(size, &hash)?;
+                println!("dynamic manager: applied size=0x{size:x}");
+                Ok(())
+            }
+            DynamicManagerOp::Clear => {
+                dynamic_manager::clear()?;
+                println!("dynamic manager: cleared");
+                Ok(())
+            }
         },
         Commands::Initrc { command } => match command {
             Initrc::Refresh => regenerate_preinit(),
