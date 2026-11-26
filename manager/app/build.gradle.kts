@@ -197,16 +197,39 @@ base {
 // The version module scripts see (KSU_VER_CODE) is baked into the bundled
 // userspace ksud, not into BuildConfig. Bumping VERSION without rebuilding
 // libksud.so makes modules report a stale "manager" version again (e.g. 30001).
-// Fail the build instead of silently shipping a mismatched binary.
+// The same applies to the prebuilt LKM blobs: they store the driver version,
+// so flashing a newly patched image would still boot an old driver version.
+// Fail the build instead of silently shipping mismatched binaries.
+// CI builds the manager without these binaries (they are packed during
+// repack), so the checks only run when the local files are present.
 val bundledKsud by lazy { file("src/main/jniLibs/arm64-v8a/libksud.so") }
+val bundledLkmVersionFile by lazy { rootProject.file("../LKM_VERSION") }
+val bundledLkmFiles by lazy {
+    rootProject.file("../userspace/ksud/bin/aarch64")
+        .listFiles { f -> f.name.endsWith("_kernelsu.ko") }
+        .orEmpty()
+}
 
 val checkBundledKsudVersion = tasks.register("checkBundledKsudVersion") {
     val expectedVersion = managerVersionCode.toString()
     inputs.file(rootProject.file("../VERSION"))
     if (bundledKsud.isFile) inputs.file(bundledKsud)
+    if (bundledLkmVersionFile.isFile) inputs.file(bundledLkmVersionFile)
     doLast {
+        if (bundledLkmFiles.isNotEmpty()) {
+            val lkmVersion = bundledLkmVersionFile.takeIf { it.isFile }
+                ?.readText()?.trim()?.toIntOrNull() ?: 0
+            if (lkmVersion != managerVersionCode) {
+                throw GradleException(
+                    "内嵌 LKM 版本 ($lkmVersion) 与 VERSION ($expectedVersion) 不一致。" +
+                        "请先运行 python3 scripts/patch_lkm_version.py，再重新编译 userspace/ksud " +
+                        "并替换 manager/app/src/main/jniLibs/arm64-v8a/libksud.so。"
+                )
+            }
+        }
         if (!bundledKsud.isFile) {
-            throw GradleException("缺少内置 ksud：${bundledKsud.absolutePath}")
+            logger.lifecycle("未提供 libksud.so，跳过内置 ksud 版本校验（CI 会在 repack 阶段打包）")
+            return@doLast
         }
         val bytes = bundledKsud.readBytes()
         val needle = expectedVersion.toByteArray(Charsets.US_ASCII)
