@@ -372,7 +372,8 @@ static int do_dynamic_manager(void __user *arg)
     return 0;
 }
 
-static int do_get_app_profile(void __user *arg){
+static int do_get_app_profile(void __user *arg)
+{
 #ifdef CONFIG_KSU_DISABLE_POLICY
     return -EOPNOTSUPP;
 #endif

@@ -534,11 +534,10 @@ enum Initrc {
 
 fn parse_size(value: &str) -> Result<u32> {
     let value = value.trim();
-    let parsed = if let Some(hex) = value.strip_prefix("0x").or_else(|| value.strip_prefix("0X")) {
-        u32::from_str_radix(hex, 16)
-    } else {
-        value.parse()
-    };
+    let parsed = value
+        .strip_prefix("0x")
+        .or_else(|| value.strip_prefix("0X"))
+        .map_or_else(|| value.parse(), |hex| u32::from_str_radix(hex, 16));
     parsed.with_context(|| format!("invalid size: {value}"))
 }
 

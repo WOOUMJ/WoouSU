@@ -90,8 +90,7 @@ int ksu_handle_dynamic_manager(struct ksu_dynamic_manager_cmd *cmd)
         dynamic_manager.size = cmd->size;
         WRITE_ONCE(dynamic_manager.is_set, true);
 
-        pr_info("dynamic_manager: enabled, size=0x%x, hash=%.16s...\n", dynamic_manager.size,
-                dynamic_manager.hash);
+        pr_info("dynamic_manager: enabled, size=0x%x, hash=%.16s...\n", dynamic_manager.size, dynamic_manager.hash);
         revalidate_manager();
         break;
 

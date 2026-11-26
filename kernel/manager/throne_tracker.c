@@ -141,8 +141,7 @@ static FILLDIR_RETURN_TYPE my_actor(struct dir_context *ctx, const char *name, i
         if (get_pkg_from_apk_dir_path(pkg, my_ctx->parent_dir) < 0)
             return FILLDIR_ACTOR_CONTINUE;
 
-        if (snprintf(apk_path, DATA_PATH_LEN, "%s/%.*s", my_ctx->parent_dir, namelen, name) >=
-            DATA_PATH_LEN) {
+        if (snprintf(apk_path, DATA_PATH_LEN, "%s/%.*s", my_ctx->parent_dir, namelen, name) >= DATA_PATH_LEN) {
             pr_err("Path too long: %s/%.*s\n", my_ctx->parent_dir, namelen, name);
             return FILLDIR_ACTOR_CONTINUE;
         }
@@ -163,8 +162,7 @@ static FILLDIR_RETURN_TYPE my_actor(struct dir_context *ctx, const char *name, i
     return FILLDIR_ACTOR_CONTINUE;
 }
 
-static bool search_manager(const char *path, int depth, struct list_head *uid_data,
-                           bool all_packages)
+static bool search_manager(const char *path, int depth, struct list_head *uid_data, bool all_packages)
 {
     int i, stop = 0;
     bool found = false;
@@ -230,8 +228,7 @@ static bool search_manager(const char *path, int depth, struct list_head *uid_da
             // As soon as we get the manager apk path, we can stop
             stop = 1;
 
-            pr_info("Found manager base.apk at path: %s, package: %s\n", candidate_path,
-                    candidate_pkg);
+            pr_info("Found manager base.apk at path: %s, package: %s\n", candidate_path, candidate_pkg);
             crown_manager(candidate_pkg, uid_data);
             found = true;
 

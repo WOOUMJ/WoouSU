@@ -146,8 +146,7 @@ static bool manager_sign_matches(unsigned int cert_size, const char *hash_str)
     if (ksu_is_dynamic_manager_enabled()) {
         apk_sign_key_t dynamic_key = ksu_get_dynamic_manager_sign();
 
-        if (dynamic_key.sha256 && cert_size == dynamic_key.size &&
-            strcmp(dynamic_key.sha256, hash_str) == 0) {
+        if (dynamic_key.sha256 && cert_size == dynamic_key.size && strcmp(dynamic_key.sha256, hash_str) == 0) {
             pr_info("sha256: %s (dynamic manager)\n", hash_str);
             return true;
         }
@@ -171,8 +170,7 @@ static bool manager_sign_matches(unsigned int cert_size, const char *hash_str)
         int i;
 
         for (i = 0; i < ARRAY_SIZE(builtin_keys); i++) {
-            if (cert_size == builtin_keys[i].size &&
-                strcmp(builtin_keys[i].sha256, hash_str) == 0) {
+            if (cert_size == builtin_keys[i].size && strcmp(builtin_keys[i].sha256, hash_str) == 0) {
                 pr_info("sha256: %s (builtin manager #%d)\n", hash_str, i);
                 return true;
             }
@@ -290,8 +288,7 @@ static __always_inline bool check_v2_signature(char *path)
 
         if (id == 0x7109871au) {
             v2_signing_blocks++;
-            v2_signing_valid =
-                check_block(fp, &pos, pair_end, &matched_cert_size, matched_hash);
+            v2_signing_valid = check_block(fp, &pos, pair_end, &matched_cert_size, matched_hash);
         } else if (id != 0x42726577u) { // APK verity padding
             // https://cs.android.com/android/platform/superproject/+/android-latest-release:tools/apksig/src/main/java/com/android/apksig/internal/apk/ApkSigningBlockUtils.java;l=102;drc=ebe4dfd4fd6550c949a6c7c2427484bf5e96500b
 #ifdef CONFIG_KSU_DEBUG

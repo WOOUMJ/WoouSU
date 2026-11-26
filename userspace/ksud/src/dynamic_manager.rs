@@ -37,8 +37,7 @@ fn read_config() -> Result<Option<(u32, String)>> {
     let size = value
         .get("size")
         .and_then(Value::as_u64)
-        .map(|v| v as u32)
-        .unwrap_or(0);
+        .map_or(0, |v| v as u32);
     let hash = value
         .get("hash")
         .and_then(Value::as_str)
