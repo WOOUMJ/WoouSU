@@ -59,6 +59,7 @@ import me.weishu.kernelsu.ui.UiMode
 import me.weishu.kernelsu.ui.component.material.ExpressiveScaffold
 import me.weishu.kernelsu.ui.component.material.TopBarBackButton
 import me.weishu.kernelsu.ui.component.material.expressiveTopAppBarColors
+import me.weishu.kernelsu.ui.component.miuix.managerCardColors
 import me.weishu.kernelsu.ui.component.miuix.managerScreenBarColor
 import me.weishu.kernelsu.ui.component.miuix.managerScreenContainerColor
 import me.weishu.kernelsu.ui.navigation3.LocalNavigator
@@ -116,8 +117,13 @@ private fun CopyableCommands(background: Color, textColor: Color) {
 }
 
 @Composable
-private fun RestoreHint(bodyColor: Color, codeBackground: Color, codeColor: Color) {
-    Column(modifier = Modifier.padding(vertical = 8.dp)) {
+private fun RestoreHint(
+    bodyColor: Color,
+    codeBackground: Color,
+    codeColor: Color,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier.padding(vertical = 8.dp)) {
         Text("恢复方法：", fontSize = 12.sp, color = bodyColor)
         Text(
             text = "1. 在终端执行以下命令：",
@@ -487,24 +493,36 @@ private fun DynamicManagerScreenMiuix(onBack: () -> Unit) {
                 .padding(horizontal = 16.dp)
                 .padding(bottom = 40.dp),
         ) {
-            MiuixText(
-                text = HINT,
-                fontSize = 13.sp,
-                color = colorScheme.onSurfaceVariantSummary,
-                modifier = Modifier.padding(vertical = 12.dp),
-            )
-            MiuixText(
-                text = statusText(state.config),
-                fontSize = 12.sp,
-                color = colorScheme.primary,
-            )
+            Card(
+                modifier = Modifier
+                    .padding(top = 12.dp)
+                    .fillMaxWidth(),
+                colors = managerCardColors(colorScheme.surfaceContainer),
+            ) {
+                Column(modifier = Modifier.padding(14.dp)) {
+                    MiuixText(
+                        text = HINT,
+                        fontSize = 13.sp,
+                        color = colorScheme.onSurfaceVariantSummary,
+                    )
+                    MiuixText(
+                        text = statusText(state.config),
+                        fontSize = 12.sp,
+                        color = colorScheme.primary,
+                        modifier = Modifier.padding(top = 8.dp),
+                    )
+                }
+            }
             MiuixText(
                 text = "已扫描到的 Root 管理器",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(top = 18.dp, bottom = 8.dp),
             )
-            Card(modifier = Modifier.fillMaxWidth()) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = managerCardColors(colorScheme.surfaceContainer),
+            ) {
                 Column {
                     when {
                         state.loading -> MiuixText(
@@ -543,11 +561,19 @@ private fun DynamicManagerScreenMiuix(onBack: () -> Unit) {
                     Text("清除动态签名")
                 }
             }
-            RestoreHint(
-                bodyColor = colorScheme.onSurfaceVariantSummary,
-                codeBackground = Color(0x1F888888),
-                codeColor = colorScheme.onSurfaceVariantSummary,
-            )
+            Card(
+                modifier = Modifier
+                    .padding(top = 12.dp)
+                    .fillMaxWidth(),
+                colors = managerCardColors(colorScheme.surfaceContainer),
+            ) {
+                RestoreHint(
+                    bodyColor = colorScheme.onSurfaceVariantSummary,
+                    codeBackground = Color(0x1F888888),
+                    codeColor = colorScheme.onSurfaceVariantSummary,
+                    modifier = Modifier.padding(horizontal = 14.dp),
+                )
+            }
         }
     }
 }

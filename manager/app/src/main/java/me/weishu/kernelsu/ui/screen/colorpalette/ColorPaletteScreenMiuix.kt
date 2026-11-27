@@ -196,7 +196,7 @@ fun ColorPaletteScreenMiuix(
                             actions.onSetThemeMode(index)
                         },
                         colors = TabRowDefaults.tabRowColors(
-                            backgroundColor = managerBlockColor(colorScheme.surface),
+                            backgroundColor = Color.Transparent,
                             selectedBackgroundColor = managerBlockColor(colorScheme.surfaceContainer),
                         ),
                     )
