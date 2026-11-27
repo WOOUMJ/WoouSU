@@ -437,7 +437,7 @@ fun installBoot(
     // chosen boot image is patched with KPM only and written to Downloads.
     if (kpmBoot != null && result.isSuccess) {
         val kpmResult = patchKpmBootFile(kpmBoot, onStdout, onStderr)
-        if (!kpmResult.isSuccess) return kpmResult
+        if (!kpmResult.isSuccess) return FlashResult(kpmResult)
     }
 
     // if boot uri is empty, it is direct install, when success, we should show reboot button
@@ -544,7 +544,7 @@ fun downloadBoot(
     bootFile.delete()
     if (kpmBoot != null && result.isSuccess) {
         val kpmResult = patchKpmBootFile(kpmBoot, onStdout, onStderr)
-        if (!kpmResult.isSuccess) return kpmResult
+        if (!kpmResult.isSuccess) return FlashResult(kpmResult)
     }
     return FlashResult(result, false)
 }
@@ -558,7 +558,7 @@ private fun patchKpmBootFile(
     uri: Uri,
     onStdout: (String) -> Unit,
     onStderr: (String) -> Unit,
-): FlashResult {
+): Shell.Result {
     val bootFile = with(ksuApp.contentResolver.openInputStream(uri)) {
         val file = File(ksuApp.cacheDir, "kpm-boot.img")
         file.outputStream().use { output -> this?.copyTo(output) }
