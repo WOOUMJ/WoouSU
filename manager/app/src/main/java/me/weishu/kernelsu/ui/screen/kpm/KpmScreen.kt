@@ -242,15 +242,22 @@ private fun KpmScreenMiuix(onBack: () -> Unit) {
                                     text = if (module.loaded) "卸载" else "加载",
                                     onClick = {
                                         scope.launch {
-                                            val ok = if (module.loaded) {
-                                                unloadKpmModule(module)
+                                            val (ok, detail) = if (module.loaded) {
+                                                unloadKpmModule(module) to ""
                                             } else {
-                                                loadKpmModule(module)
+                                                val r = loadKpmModule(module)
+                                                r.ok to r.detail
                                             }
                                             Toast.makeText(
                                                 context,
-                                                if (ok) "操作成功" else "操作失败（内核可能不支持 KPM）",
-                                                Toast.LENGTH_SHORT,
+                                                if (ok) {
+                                                    "操作成功"
+                                                } else if (module.loaded) {
+                                                    "卸载失败"
+                                                } else {
+                                                    "加载失败：" + detail.ifBlank { "内核可能不支持 KPM" }
+                                                },
+                                                Toast.LENGTH_LONG,
                                             ).show()
                                             refresh()
                                         }
@@ -382,15 +389,22 @@ private fun KpmScreenMaterial(onBack: () -> Unit) {
                                 androidx.compose.material3.TextButton(
                                     onClick = {
                                         scope.launch {
-                                            val ok = if (module.loaded) {
-                                                unloadKpmModule(module)
+                                            val (ok, detail) = if (module.loaded) {
+                                                unloadKpmModule(module) to ""
                                             } else {
-                                                loadKpmModule(module)
+                                                val r = loadKpmModule(module)
+                                                r.ok to r.detail
                                             }
                                             Toast.makeText(
                                                 context,
-                                                if (ok) "操作成功" else "操作失败（内核可能不支持 KPM）",
-                                                Toast.LENGTH_SHORT,
+                                                if (ok) {
+                                                    "操作成功"
+                                                } else if (module.loaded) {
+                                                    "卸载失败"
+                                                } else {
+                                                    "加载失败：" + detail.ifBlank { "内核可能不支持 KPM" }
+                                                },
+                                                Toast.LENGTH_LONG,
                                             ).show()
                                             refresh()
                                         }

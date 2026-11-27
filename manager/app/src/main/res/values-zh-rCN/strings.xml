@@ -99,7 +99,7 @@
     <string name="home_support_title">支持开发</string>
     <string name="home_support_content">WoouSU 将保持免费开源，向开发者捐赠以表示支持</string>
     <string name="home_support_tencent">微信/QQ</string>
-    <string name="home_support_alipay">选择支付宝</string>
+    <string name="home_support_alipay">支付宝</string>
     <string name="home_support_thanks">感谢您对WoouSU的支持</string>
     <string name="home_support_tencent_hint">已复制「腾讯公益」，请在微信/QQ 小程序中搜索打开</string>
     <string name="home_support_unavailable">未找到可用的应用</string>

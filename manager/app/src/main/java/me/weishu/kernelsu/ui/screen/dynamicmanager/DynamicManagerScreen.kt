@@ -59,6 +59,8 @@ import me.weishu.kernelsu.ui.UiMode
 import me.weishu.kernelsu.ui.component.material.ExpressiveScaffold
 import me.weishu.kernelsu.ui.component.material.TopBarBackButton
 import me.weishu.kernelsu.ui.component.material.expressiveTopAppBarColors
+import me.weishu.kernelsu.ui.component.miuix.managerScreenBarColor
+import me.weishu.kernelsu.ui.component.miuix.managerScreenContainerColor
 import me.weishu.kernelsu.ui.navigation3.LocalNavigator
 import me.weishu.kernelsu.ui.util.DynamicManagerConfig
 import me.weishu.kernelsu.ui.util.ExecResult
@@ -85,9 +87,8 @@ private const val HINT = "动态管理器签名用于让其它 KernelSU 系 root
     "选择下方扫描到的管理器后，它的签名会被写入内核并持久保存，重启后依然生效；" +
     "切换后 WoouSU 管理器会暂时失去管理器身份与 root，请打开目标管理器继续操作。"
 
-private const val RESTORE_COMMANDS = "su -c 'LIB=\$(ls -dt /data/app/*/com.woousu.wo-*/lib/arm64/libksud.so 2>/dev/null | head -1); " +
-    "echo \"\$LIB\"; cat \"\$LIB\" > /data/adb/ksud && chmod 755 /data/adb/ksud && /data/adb/ksud --version'\n" +
-    "su -c /data/adb/ksud dynamic-manager clear"
+private const val RESTORE_COMMANDS = "su -c 'L=\$(ls -dt /data/app/*/com.woousu.wo-*/lib/arm64/libksud.so|head -1); " +
+    "cat \"\$L\">/data/adb/ksud; chmod 755 /data/adb/ksud; /data/adb/ksud dynamic-manager clear'"
 
 @Composable
 private fun CopyableCommands(background: Color, textColor: Color) {
@@ -126,7 +127,7 @@ private fun RestoreHint(bodyColor: Color, codeBackground: Color, codeColor: Colo
         )
         CopyableCommands(codeBackground, codeColor)
         Text(
-            text = "（点击代码即可直接粘贴复制）",
+            text = "（点击命令可直接复制粘贴）",
             fontSize = 11.sp,
             color = bodyColor,
             modifier = Modifier.padding(top = 4.dp),
@@ -457,9 +458,11 @@ private fun DynamicManagerScreenMiuix(onBack: () -> Unit) {
     val scrollBehavior = MiuixScrollBehavior()
 
     Scaffold(
+        containerColor = managerScreenContainerColor(),
         topBar = {
             SmallTopAppBar(
                 title = TITLE,
+                color = managerScreenBarColor(false),
                 scrollBehavior = scrollBehavior,
                 navigationIcon = {
                     IconButton(onClick = onBack) {

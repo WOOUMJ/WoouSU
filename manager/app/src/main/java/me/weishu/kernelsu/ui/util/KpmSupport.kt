@@ -50,7 +50,30 @@ suspend fun listKpmModules(): List<KpmModule> = withContext(Dispatchers.IO) {
     modules.sortedBy { it.name.lowercase() }
 }
 
-suspend fun loadKpmModule(module: KpmModule, args: String = ""): Boolean = withContext(Dispatchers.IO) {
+data class KpmActionResult(val ok: Boolean, val detail: String)
+
+private fun friendlyKpmError(raw: String): String {
+    val tail = raw.lineSequence().map { it.trim() }.filter { it.isNotEmpty() }.lastOrNull().orEmpty()
+    return when {
+        raw.contains("Exec format error", true) ->
+            "模块与当前内核不匹配（可能不是有效的 KPM，或内核版本不同）"
+        raw.contains("No such file", true) -> "模块文件不存在"
+        raw.contains("File exists", true) -> "模块已加载"
+        raw.contains("module init failed", true) ->
+            "模块初始化失败（可能与当前内核不兼容）"
+        raw.contains("apply relocations", true) ->
+            "模块符号解析失败（内核符号不匹配）"
+        raw.contains("allocate executable", true) ->
+            "内核无法分配可执行内存（可能受内核限制）"
+        raw.contains("Operation not supported", true) ->
+            "内核未启用 KPM，或 KernelPatch 版本不匹配"
+        raw.contains("Permission denied", true) -> "权限不足"
+        tail.isNotEmpty() -> tail
+        else -> "未知错误"
+    }
+}
+
+suspend fun loadKpmModule(module: KpmModule, args: String = ""): KpmActionResult = withContext(Dispatchers.IO) {
     val command = buildString {
         append(kpmCommand())
         append(" load \"")
@@ -61,7 +84,18 @@ suspend fun loadKpmModule(module: KpmModule, args: String = ""): Boolean = withC
             append(args)
         }
     }
-    runRoot(command).isSuccess
+    val result = runRoot(command)
+    if (result.isSuccess) {
+        KpmActionResult(true, "")
+    } else {
+        val raw = (result.err + result.out).joinToString("\n")
+        val friendly = friendlyKpmError(raw)
+        val klog = runRootOut("dmesg 2>/dev/null | grep -iE 'kpm|module' | tail -1")
+            .firstOrNull { it.isNotBlank() }
+            ?.trim()
+        val detail = if (klog.isNullOrEmpty()) friendly else "$friendly\n内核日志：${klog.take(120)}"
+        KpmActionResult(false, detail)
+    }
 }
 
 suspend fun unloadKpmModule(module: KpmModule): Boolean = withContext(Dispatchers.IO) {
