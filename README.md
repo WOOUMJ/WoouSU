@@ -35,7 +35,7 @@ A **KernelSU-based, kernel-level root solution for Android**. WoouSU keeps Kerne
 - Bundled `kptools` / `kpimg` — everything happens inside the manager, no external toolchain.
 - **Integrity verification** before and after writing, plus automatic **backup / restore of the original boot**.
 - Full `ksud kpm` command set: `load`, `unload`, `list`, `info`, `control`, `version`.
-- Modules placed in `/data/adb/kpm` are loaded automatically at boot; failures report the real reason and kernel logs.
+- Modules placed in `/data/adb/kpm` are loaded automatically at boot.
 
 ### Dynamic manager signature
 - Lets other KernelSU-based managers work with a WoouSU kernel.
@@ -50,7 +50,7 @@ A **KernelSU-based, kernel-level root solution for Android**. WoouSU keeps Kerne
 - **Two deployment modes**
   - *LKM patching*: patch the stock `boot` / `init_boot` image on-device; no custom kernel required.
   - *Built-in kernel*: compile with `CONFIG_KSU=y`; nothing is loaded as `kernelsu.ko`, and SUSFS can be enabled as well.
-- **Rebranded manager** (`com.woousu.wo`) signed with its own certificate, independent of the upstream KernelSU manager.
+- **Rebranded manager** (`com.woousu.wo`) signed with its own certificate; the trusted certificate can be switched via dynamic manager signature.
 - **Upstream tracking**: prebuilt LKM artifacts for 8 KMIs, compiled for the current version.
 
 ## Compatibility
@@ -62,7 +62,7 @@ A **KernelSU-based, kernel-level root solution for Android**. WoouSU keeps Kerne
 | ABI | `arm64-v8a` |
 | Boot image | `boot` or `init_boot` (wherever the ramdisk lives) |
 | SUSFS | Only on a kernel compiled with the SUSFS patches |
-| Manager | `com.woousu.wo`; mutually exclusive with upstream and other forks — install only one |
+| Manager | `com.woousu.wo`; own certificate, with dynamic manager signature support |
 
 ## Installation
 

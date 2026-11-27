@@ -35,7 +35,7 @@
 - 内置 `kptools` / `kpimg`，全程在管理器内完成，无需外部工具链。
 - 生成与写入前后进行 **完整性校验**，并自动 **备份 / 还原原始 boot**。
 - 完整的 `ksud kpm` 命令：`load`、`unload`、`list`、`info`、`control`、`version`。
-- 放入 `/data/adb/kpm` 的模块会在开机时自动加载；加载失败会显示真实原因并输出内核日志。
+- 放入 `/data/adb/kpm` 的模块会在开机时自动加载。
 
 ### 动态管理器签名
 - 让其它 KernelSU 系管理器也能配合 WoouSU 内核工作。
@@ -50,7 +50,7 @@
 - **两种部署方式**
   - *LKM 修补*：在手机上直接修补原厂 `boot` / `init_boot`，不需要自定义内核。
   - *内建内核*：使用 `CONFIG_KSU=y` 编入内核，不加载 `kernelsu.ko`，可同时启用 SUSFS。
-- **独立管理器**（`com.woousu.wo`）：使用自有证书签名，与上游 KernelSU 管理器互不兼容。
+- **独立管理器**（`com.woousu.wo`）：使用自有证书签名，并可通过动态管理器签名切换内核信任的管理器证书。
 - **持续跟进上游**：为 8 个 KMI 提供按当前版本编译的 LKM 预编译产物。
 
 ## 兼容性
@@ -62,7 +62,7 @@
 | ABI | `arm64-v8a` |
 | Boot 镜像 | `boot` 或 `init_boot`（取决于 ramdisk 所在分区） |
 | SUSFS | 仅在编入 SUSFS 补丁的内核上可用 |
-| 管理器 | `com.woousu.wo`，与上游及其它分支管理器互斥，只能安装一个 |
+| 管理器 | `com.woousu.wo`，自有证书签名；支持动态管理器签名 |
 
 ## 安装
 
