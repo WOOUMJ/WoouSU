@@ -9,7 +9,7 @@ use crate::boot_patch::{BootPatchArgs, BootRestoreArgs};
 use crate::lkm_image::BootPatchV2Args;
 use crate::module::regenerate_preinit;
 use crate::{
-    apk_sign, assets, debug, defs, dynamic_manager, init_event, ksu_uapi, ksucalls, module,
+    apk_sign, assets, debug, defs, dynamic_manager, init_event, kpm, ksu_uapi, ksucalls, module,
     module_config, sulog, utils,
 };
 
@@ -158,6 +158,12 @@ enum Commands {
     DynamicManager {
         #[command(subcommand)]
         command: DynamicManagerOp,
+    },
+
+    /// Manage KernelPatch modules (KPM)
+    Kpm {
+        #[command(subcommand)]
+        command: KpmOp,
     },
 }
 
@@ -506,6 +512,40 @@ enum DynamicManagerOp {
     },
     /// Clear the dynamic signature and restore the WoouSU manager
     Clear,
+}
+
+#[derive(clap::Subcommand, Debug)]
+enum KpmOp {
+    /// Load a KPM module from a .kpm file
+    Load {
+        /// Path to the .kpm file
+        path: PathBuf,
+        /// Optional arguments passed to the module
+        args: Option<String>,
+    },
+    /// Unload a loaded KPM module by name
+    Unload {
+        /// module name
+        name: String,
+    },
+    /// Show the number of loaded KPM modules
+    Num,
+    /// List loaded KPM modules
+    List,
+    /// Show information about a KPM module
+    Info {
+        /// module name
+        name: String,
+    },
+    /// Send a control command to a KPM module
+    Control {
+        /// module name
+        name: String,
+        /// control arguments
+        args: String,
+    },
+    /// Show the KernelPatch version of the running kernel
+    Version,
 }
 
 #[derive(clap::Subcommand, Debug)]
@@ -896,6 +936,15 @@ pub fn run() -> Result<()> {
                 println!("dynamic manager: cleared");
                 Ok(())
             }
+        },
+        Commands::Kpm { command } => match command {
+            KpmOp::Load { path, args } => kpm::load_module(&path, args.as_deref()),
+            KpmOp::Unload { name } => kpm::unload_module(&name),
+            KpmOp::Num => kpm::num(),
+            KpmOp::List => kpm::list(),
+            KpmOp::Info { name } => kpm::info(&name),
+            KpmOp::Control { name, args } => kpm::control(&name, &args),
+            KpmOp::Version => kpm::version(),
         },
         Commands::Initrc { command } => match command {
             Initrc::Refresh => regenerate_preinit(),

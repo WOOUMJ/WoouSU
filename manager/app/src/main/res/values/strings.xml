@@ -111,6 +111,11 @@
     <string name="home_click_to_learn_kernelsu">Learn how to install WoouSU and use modules.</string>
     <string name="home_support_title">Support Us</string>
     <string name="home_support_content">WoouSU is, and always will be, free, and open source. However, you can show us that you care by making a donation.</string>
+    <string name="home_support_tencent">WeChat/QQ</string>
+    <string name="home_support_alipay">Choose Alipay</string>
+    <string name="home_support_thanks">Thank you for supporting WoouSU.</string>
+    <string name="home_support_tencent_hint">"Tencent Charity" copied. Search for it in WeChat/QQ mini programs.</string>
+    <string name="home_support_unavailable">No compatible app found.</string>
     <string name="home_gki_warning">Starting from v3.0.0, the GKI work mode will be used only in testing environments. We do not recommend it for daily use, and image files will no longer be provided.</string>
     <string name="about_source_code"><![CDATA[View source code at %1$s<br/>Join our %2$s channel]]></string>
     <string name="profile" translatable="false">App Profile</string>
@@ -340,6 +345,8 @@
     <string name="allow_shell_summary">Always allow adb shell to call SU command. Do not enable this unless absolutely necessary.</string>
     <string name="enable_adb">Force enable adb on boot</string>
     <string name="enable_adb_summary">Force enable USB debugging and disable adb authentication. Do not enable this unless absolutely necessary.</string>
+    <string name="install_enable_kpm">Enable KPM support</string>
+    <string name="install_enable_kpm_summary">Patch the kernel with KernelPatch (kpimg) so KernelPatch modules (.kpm) can be loaded. Arm64 only.</string>
     <string name="advanced_options">Advanced Options</string>
     <string name="expand">Expand</string>
     <string name="download_channel_name">Module Downloads</string>

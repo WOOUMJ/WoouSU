@@ -97,6 +97,12 @@ pub fn on_post_fs_data() -> Result<()> {
         warn!("init features failed: {e}");
     }
 
+    // load KernelPatch modules (KPM) when the running kernel has the
+    // KernelPatch runtime; a kernel without it makes this a no-op.
+    if let Err(e) = crate::kpm::booted_load() {
+        info!("KPM boot load skipped: {e:#}");
+    }
+
     // execute metamodule post-fs-data script first (priority)
     if let Err(e) = metamodule::exec_stage_script("post-fs-data", wait) {
         warn!("exec metamodule post-fs-data script failed: {e}");

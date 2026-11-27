@@ -1,6 +1,8 @@
 package me.weishu.kernelsu.ui.screen.home
 
+import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -91,5 +93,48 @@ fun HomePager(
             actions = actions,
             bottomInnerPadding = bottomInnerPadding,
         )
+    }
+}
+
+internal enum class CharityTarget { Tencent, Alipay }
+
+private const val ALIPAY_PACKAGE = "com.eg.android.AlipayGphone"
+private const val ALIPAY_CHARITY_URL = "https://ur.alipay.com/_4TE10qwJXLbURkQGPK4x31"
+private const val TENCENT_CHARITY_URL = "https://gongyi.qq.com/"
+
+private fun isPackageInstalled(context: Context, packageName: String): Boolean =
+    runCatching { context.packageManager.getPackageInfo(packageName, 0) }.isSuccess
+
+private fun openUri(context: Context, uri: String): Boolean = runCatching {
+    context.startActivity(
+        Intent(Intent.ACTION_VIEW, Uri.parse(uri)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    )
+}.isSuccess
+
+private fun openUriInPackage(context: Context, uri: String, packageName: String): Boolean = runCatching {
+    context.startActivity(
+        Intent(Intent.ACTION_VIEW, Uri.parse(uri))
+            .setPackage(packageName)
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    )
+}.isSuccess
+
+internal fun openCharity(context: Context, target: CharityTarget) {
+    when (target) {
+        CharityTarget.Alipay -> {
+            val deepLink =
+                "alipays://platformapi/startapp?appId=20000067&url=${Uri.encode(ALIPAY_CHARITY_URL)}"
+            val opened = isPackageInstalled(context, ALIPAY_PACKAGE) &&
+                (openUriInPackage(context, deepLink, ALIPAY_PACKAGE) || openUri(context, deepLink))
+            if (!opened && !openUri(context, ALIPAY_CHARITY_URL)) {
+                Toast.makeText(context, R.string.home_support_unavailable, Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        CharityTarget.Tencent -> {
+            if (!openUri(context, TENCENT_CHARITY_URL)) {
+                Toast.makeText(context, R.string.home_support_unavailable, Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 }

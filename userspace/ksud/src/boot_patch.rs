@@ -508,6 +508,11 @@ pub struct BootPatchArgs {
     /// Patching ramdisk instead of boot image. This is used for AVD ramdisk
     #[arg(long, default_value = "false")]
     ramdisk: bool,
+
+    /// Patch the kernel image with KernelPatch (kpimg) so KPM modules can be
+    /// loaded at runtime. arm64 only.
+    #[arg(long = "enable-kpm", default_value = "false")]
+    enable_kpm: bool,
 }
 
 /// WoouSU module params, stored in ramdisk `/ksu_config` (boot-patch) or the
@@ -624,6 +629,74 @@ fn parse_force_feature(s: &str) -> Result<(FeatureId, u64)> {
     Ok((parse_feature_id(name)?, value))
 }
 
+/// Patch a bare arm64 kernel image with the bundled KernelPatch (kpimg) so the
+/// resulting kernel exposes the KPM supercall runtime.
+///
+/// The original bytes are kept untouched on disk; the patched image is written
+/// to a sibling file, sanity-checked and only then returned. A failed patch
+/// never corrupts the caller's buffer.
+#[cfg(all(target_os = "android", target_arch = "aarch64"))]
+fn kpm_patch_kernel(kernel: &[u8]) -> Result<Vec<u8>> {
+    use std::os::unix::fs::PermissionsExt;
+
+    const ARM64_MAGIC_OFFSET: usize = 0x38;
+    const ARM64_MAGIC: &[u8; 4] = b"ARM\x64";
+
+    let dir = std::env::temp_dir().join(format!("woousu-kpm-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(&dir).context("failed to create KPM work directory")?;
+
+    let result = (|| -> Result<Vec<u8>> {
+        let kptools = dir.join("kptools");
+        let kpimg = dir.join("kpimg");
+        let input = dir.join("kernel.img");
+        let output = dir.join("kernel.patched");
+
+        let kptools_data = assets::get_asset_data("kptools").context("bundled kptools missing")?;
+        let kpimg_data = assets::get_asset_data("kpimg").context("bundled kpimg missing")?;
+        ensure!(!kptools_data.is_empty(), "bundled kptools is empty");
+        ensure!(!kpimg_data.is_empty(), "bundled kpimg is empty");
+
+        std::fs::write(&kptools, &kptools_data).context("failed to write kptools")?;
+        std::fs::set_permissions(&kptools, std::fs::Permissions::from_mode(0o755))
+            .context("failed to chmod kptools")?;
+        std::fs::write(&kpimg, &kpimg_data).context("failed to write kpimg")?;
+        std::fs::write(&input, kernel).context("failed to write kernel image")?;
+
+        let status = std::process::Command::new(&kptools)
+            .arg("-p")
+            .arg("-s")
+            .arg("123")
+            .arg("-i")
+            .arg(&input)
+            .arg("-k")
+            .arg(&kpimg)
+            .arg("-o")
+            .arg(&output)
+            .status()
+            .context("failed to run kptools")?;
+        ensure!(status.success(), "kptools failed with {status}");
+
+        let patched = std::fs::read(&output).context("failed to read patched kernel")?;
+        ensure!(!patched.is_empty(), "kptools produced an empty kernel");
+        // An Image carries the arm64 magic; a successful patch must keep it.
+        let had_magic = kernel.len() > ARM64_MAGIC_OFFSET + 4
+            && &kernel[ARM64_MAGIC_OFFSET..ARM64_MAGIC_OFFSET + 4] == ARM64_MAGIC;
+        if had_magic {
+            ensure!(
+                patched.len() > ARM64_MAGIC_OFFSET + 4
+                    && &patched[ARM64_MAGIC_OFFSET..ARM64_MAGIC_OFFSET + 4] == ARM64_MAGIC,
+                "patched kernel lost the arm64 Image magic"
+            );
+        }
+        ensure!(patched != kernel, "kptools did not modify the kernel");
+        Ok(patched)
+    })();
+
+    let _ = std::fs::remove_dir_all(&dir);
+    result
+}
+
 pub fn patch(args: BootPatchArgs) -> Result<()> {
     let inner = move || {
         let BootPatchArgs {
@@ -650,6 +723,7 @@ pub fn patch(args: BootPatchArgs) -> Result<()> {
             #[cfg(not(target_os = "android"))]
             arch,
             ramdisk,
+            enable_kpm,
         } = args;
 
         println!(include_str!("banner"));
@@ -764,6 +838,38 @@ pub fn patch(args: BootPatchArgs) -> Result<()> {
             println!("- Set cmdline to: {cmdline_value}");
         }
 
+        #[cfg(not(all(target_os = "android", target_arch = "aarch64")))]
+        ensure!(
+            !enable_kpm,
+            "KPM (KernelPatch) kernel patching is only available on arm64 Android"
+        );
+
+        #[cfg(all(target_os = "android", target_arch = "aarch64"))]
+        if enable_kpm {
+            // Patch the kernel that ends up in the image: an explicitly supplied
+            // --kernel, otherwise the one already inside the boot image.
+            let kernel_bytes = if let Some(kernel_path) = &kernel {
+                std::fs::read(kernel_path).context("failed to read kernel")?
+            } else {
+                let block = boot_image
+                    .get_blocks()
+                    .get_kernel()
+                    .context("boot image has no kernel to patch with KPM")?;
+                let mut raw = Vec::new();
+                block.dump(&mut raw, false)?;
+                raw
+            };
+            println!("- Patching kernel with KernelPatch (KPM)");
+            let patched = kpm_patch_kernel(&kernel_bytes)?;
+            println!("- KPM patch applied ({} bytes)", patched.len());
+            patcher.replace_kernel(Box::new(Cursor::new(patched)), false);
+        } else if let Some(kernel_path) = kernel {
+            println!("- Adding Kernel");
+            let kernel_data = map_file(&kernel_path)?;
+            patcher.replace_kernel(Box::new(Cursor::new(kernel_data)), false);
+        }
+
+        #[cfg(not(all(target_os = "android", target_arch = "aarch64")))]
         if let Some(kernel_path) = kernel {
             println!("- Adding Kernel");
             let kernel_data = map_file(&kernel_path)?;

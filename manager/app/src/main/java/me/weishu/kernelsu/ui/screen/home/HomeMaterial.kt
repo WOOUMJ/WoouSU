@@ -37,6 +37,7 @@ import androidx.compose.material.icons.filled.VolunteerActivism
 import androidx.compose.material.icons.rounded.Block
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Warning
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -46,12 +47,17 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.contentColorFor
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -59,11 +65,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import me.weishu.kernelsu.BuildConfig
 import me.weishu.kernelsu.KernelVersion
@@ -414,11 +422,48 @@ private fun SupportLinks(
     modifier: Modifier = Modifier,
 ) {
     val learnMoreUrl = "https://github.com/WOOUMJ/WoouSU"
+    val context = LocalContext.current
+    var showCharityDialog by remember { mutableStateOf(false) }
+
+    if (showCharityDialog) {
+        AlertDialog(
+            onDismissRequest = { showCharityDialog = false },
+            title = { Text(stringResource(R.string.home_support_title)) },
+            text = {
+                Text(
+                    text = stringResource(R.string.home_support_thanks),
+                    style = MaterialTheme.typography.bodySmall,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showCharityDialog = false
+                        openCharity(context, CharityTarget.Tencent)
+                    },
+                ) {
+                    Text(stringResource(R.string.home_support_tencent))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showCharityDialog = false
+                        openCharity(context, CharityTarget.Alipay)
+                    },
+                ) {
+                    Text(stringResource(R.string.home_support_alipay))
+                }
+            },
+        )
+    }
 
     SegmentedColumn(modifier = modifier.fillMaxWidth()) {
         item {
             SegmentedListItem(
-                onClick = { onOpenUrl("https://github.com/WOOUMJ/WoouSU") },
+                onClick = { showCharityDialog = true },
                 headlineContent = { Text(stringResource(R.string.home_support_title)) },
                 supportingContent = { Text(stringResource(R.string.home_support_content)) },
                 leadingContent = {

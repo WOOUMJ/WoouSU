@@ -362,10 +362,12 @@ private fun bootPatchFlags(
     allowShell: Boolean,
     enableAdb: Boolean,
     forceBackup: Boolean,
+    enableKpm: Boolean,
 ): String = buildString {
     if (allowShell) append(" --allow-shell")
     if (enableAdb) append(" --enable-adbd")
     if (forceBackup) append(" --backup")
+    if (enableKpm) append(" --enable-kpm")
 }
 
 fun installBoot(
@@ -376,6 +378,7 @@ fun installBoot(
     allowShell: Boolean,
     enableAdb: Boolean,
     forceBackup: Boolean,
+    enableKpm: Boolean,
     onStdout: (String) -> Unit,
     onStderr: (String) -> Unit,
 ): FlashResult {
@@ -400,7 +403,7 @@ fun installBoot(
     } else {
         " -b ${bootFile.absolutePath}"
     }
-    cmd += bootPatchFlags(allowShell, enableAdb, forceBackup)
+    cmd += bootPatchFlags(allowShell, enableAdb, forceBackup, enableKpm)
 
     if (ota) {
         cmd += " -u"
@@ -444,6 +447,7 @@ fun downloadBoot(
     allowShell: Boolean,
     enableAdb: Boolean,
     forceBackup: Boolean,
+    enableKpm: Boolean,
     onStdout: (String) -> Unit,
     onStderr: (String) -> Unit,
 ): FlashResult {
@@ -500,7 +504,7 @@ fun downloadBoot(
     }
 
     var cmd = "${getKsuDaemonPath()} boot-patch -b ${bootFile.absolutePath}"
-    cmd += bootPatchFlags(allowShell, enableAdb, forceBackup)
+    cmd += bootPatchFlags(allowShell, enableAdb, forceBackup, enableKpm)
 
     val lkmFile = writeLkmFile(lkm)
     if (lkmFile != null) {

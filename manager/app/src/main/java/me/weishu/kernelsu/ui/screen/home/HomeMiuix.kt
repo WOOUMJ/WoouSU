@@ -42,18 +42,24 @@ import androidx.compose.material.icons.rounded.CheckCircleOutline
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import me.weishu.kernelsu.BuildConfig
@@ -76,6 +82,7 @@ import me.weishu.kernelsu.ui.theme.isInDarkTheme
 import me.weishu.kernelsu.ui.util.BlurredBar
 import me.weishu.kernelsu.ui.util.module.LatestVersionInfo
 import me.weishu.kernelsu.ui.util.rememberBlurBackdrop
+import top.yukonga.miuix.kmp.window.WindowDialog
 import top.yukonga.miuix.kmp.basic.BasicComponent
 import top.yukonga.miuix.kmp.basic.ButtonDefaults
 import top.yukonga.miuix.kmp.basic.Card
@@ -488,6 +495,48 @@ private fun SupportLinks(
     modifier: Modifier = Modifier,
 ) {
     val learnMoreUrl = "https://github.com/WOOUMJ/WoouSU"
+    val context = LocalContext.current
+    var showCharityDialog by remember { mutableStateOf(false) }
+
+    if (showCharityDialog) {
+        WindowDialog(
+            show = showCharityDialog,
+            title = stringResource(R.string.home_support_title),
+            onDismissRequest = { showCharityDialog = false },
+        ) {
+            Column {
+                Text(
+                    text = stringResource(R.string.home_support_thanks),
+                    fontSize = 13.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    TextButton(
+                        text = stringResource(R.string.home_support_tencent),
+                        onClick = {
+                            showCharityDialog = false
+                            openCharity(context, CharityTarget.Tencent)
+                        },
+                        modifier = Modifier.weight(1f),
+                    )
+                    TextButton(
+                        text = stringResource(R.string.home_support_alipay),
+                        onClick = {
+                            showCharityDialog = false
+                            openCharity(context, CharityTarget.Alipay)
+                        },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+            }
+        }
+    }
 
     Card(
         modifier = modifier,
@@ -504,7 +553,7 @@ private fun SupportLinks(
                     tint = colorScheme.onBackground,
                 )
             },
-            onClick = { onOpenUrl("https://github.com/WOOUMJ/WoouSU") },
+            onClick = { showCharityDialog = true },
         )
         ArrowPreference(
             title = stringResource(R.string.home_learn_kernelsu),

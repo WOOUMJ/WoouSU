@@ -66,6 +66,7 @@ fun InstallScreen() {
     var allowShell by rememberSaveable { mutableStateOf(false) }
     var enableAdb by rememberSaveable { mutableStateOf(false) }
     var forceBackup by rememberSaveable { mutableStateOf(false) }
+    var enableKpm by rememberSaveable { mutableStateOf(false) }
 
     val currentKmi by produceState(initialValue = "") { value = getCurrentKmi() }
     val partitions by produceState(initialValue = emptyList()) { value = getAvailablePartitions() }
@@ -131,7 +132,8 @@ fun InstallScreen() {
                             lkm = lkmSelection,
                             allowShell = allowShell,
                             enableAdb = enableAdb,
-                            backup = forceBackup
+                            backup = forceBackup,
+                            kpm = enableKpm
                         )
                         else -> FlashIt.FlashBoot(
                             boot = if (method is InstallMethod.SelectFile) method.uri else null,
@@ -140,7 +142,8 @@ fun InstallScreen() {
                             partition = partitions.getOrNull(partitionSelectionIndex),
                             allowShell = allowShell,
                             enableAdb = enableAdb,
-                            backup = method is InstallMethod.SelectFile && forceBackup
+                            backup = method is InstallMethod.SelectFile && forceBackup,
+                            kpm = enableKpm
                         )
                     }
                 )
@@ -236,6 +239,7 @@ fun InstallScreen() {
         enableAdb = enableAdb,
         forceBackup = forceBackup,
         canForceBackup = installMethod is InstallMethod.SelectFile,
+        enableKpm = enableKpm,
     )
     val actions = InstallScreenActions(
         onBack = dropUnlessResumed { navigator.pop() },
@@ -285,6 +289,9 @@ fun InstallScreen() {
         },
         onSelectForceBackup = {
             forceBackup = it
+        },
+        onSelectEnableKpm = {
+            enableKpm = it
         }
     )
 

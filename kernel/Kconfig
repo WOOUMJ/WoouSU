@@ -26,6 +26,16 @@ config KSU_DISABLE_MANAGER
 	  Disable manager APK detection and manager-specific handling.
 	  Root will be used in place of manager-only functionality.
 
+config KSU_KPM
+	bool "Enable KPM (KernelPatch Module) bridge"
+	depends on KSU
+	default y
+	help
+	  Compile in the KernelPatch supercall bridge used by KPM modules.
+	  Loading KPM modules still requires the running kernel image to be
+	  patched with KernelPatch (kpimg); without it every KPM operation
+	  returns -EOPNOTSUPP.
+
 config KSU_DISABLE_POLICY
 	bool "Disable KernelSU policy profiles"
 	depends on KSU

@@ -259,6 +259,11 @@ pub fn clear_dynamic_manager() -> Result<()> {
     Ok(())
 }
 
+/// Forward a raw `struct ksu_kpm_cmd` to the kernel KPM bridge.
+pub fn kpm_io(cmd: *mut ksu_uapi::ksu_kpm_cmd) -> Result<i32> {
+    ksuctl(ksu_uapi::KSU_IOCTL_KPM, cmd)
+}
+
 fn report_event(event: u32) {
     let mut cmd = ksu_uapi::ksu_report_event_cmd { event };
     let _ = ksuctl(ksu_uapi::KSU_IOCTL_REPORT_EVENT, &raw mut cmd);

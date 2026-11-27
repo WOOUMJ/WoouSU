@@ -1,7 +1,14 @@
 package me.weishu.kernelsu.ui.screen.dynamicmanager
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -36,8 +43,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -74,7 +85,60 @@ private const val HINT = "动态管理器签名用于让其它 KernelSU 系 root
     "选择下方扫描到的管理器后，它的签名会被写入内核并持久保存，重启后依然生效；" +
     "切换后 WoouSU 管理器会暂时失去管理器身份与 root，请打开目标管理器继续操作。"
 
-private const val RESTORE_HINT = "恢复方法：在目标管理器的终端执行 ksud dynamic-manager clear，或删除 /data/adb/ksu/dynamic_manager.json 后重启。"
+private const val RESTORE_COMMANDS = "su -c 'LIB=\$(ls -dt /data/app/*/com.woousu.wo-*/lib/arm64/libksud.so 2>/dev/null | head -1); " +
+    "echo \"\$LIB\"; cat \"\$LIB\" > /data/adb/ksud && chmod 755 /data/adb/ksud && /data/adb/ksud --version'\n" +
+    "su -c /data/adb/ksud dynamic-manager clear"
+
+@Composable
+private fun CopyableCommands(background: Color, textColor: Color) {
+    val context = LocalContext.current
+    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 4.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .background(background)
+            .clickable {
+                clipboard?.setPrimaryClip(ClipData.newPlainText("ksud", RESTORE_COMMANDS))
+                Toast.makeText(context, "已复制", Toast.LENGTH_SHORT).show()
+            }
+            .padding(10.dp),
+    ) {
+        Text(
+            text = RESTORE_COMMANDS,
+            fontFamily = FontFamily.Monospace,
+            fontSize = 11.sp,
+            color = textColor,
+        )
+    }
+}
+
+@Composable
+private fun RestoreHint(bodyColor: Color, codeBackground: Color, codeColor: Color) {
+    Column(modifier = Modifier.padding(vertical = 8.dp)) {
+        Text("恢复方法：", fontSize = 12.sp, color = bodyColor)
+        Text(
+            text = "1. 在终端执行以下命令：",
+            fontSize = 12.sp,
+            color = bodyColor,
+            modifier = Modifier.padding(top = 4.dp),
+        )
+        CopyableCommands(codeBackground, codeColor)
+        Text(
+            text = "（点击代码即可直接粘贴复制）",
+            fontSize = 11.sp,
+            color = bodyColor,
+            modifier = Modifier.padding(top = 4.dp),
+        )
+        Text(
+            text = "2. 删除 /data/adb/ksu/dynamic_manager.json 后重启。",
+            fontSize = 12.sp,
+            color = bodyColor,
+            modifier = Modifier.padding(top = 6.dp),
+        )
+    }
+}
 
 private data class DynamicManagerState(
     val config: DynamicManagerConfig?,
@@ -326,11 +390,10 @@ private fun DynamicManagerScreenMaterial(onBack: () -> Unit) {
                             Text("应用")
                         }
                     }
-                    Text(
-                        text = RESTORE_HINT,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(vertical = 8.dp),
+                    RestoreHint(
+                        bodyColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        codeBackground = MaterialTheme.colorScheme.surfaceVariant,
+                        codeColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
                 Spacer(modifier = Modifier.height(32.dp))
@@ -477,11 +540,10 @@ private fun DynamicManagerScreenMiuix(onBack: () -> Unit) {
                     Text("清除动态签名")
                 }
             }
-            MiuixText(
-                text = RESTORE_HINT,
-                fontSize = 12.sp,
-                color = colorScheme.onSurfaceVariantSummary,
-                modifier = Modifier.padding(top = 12.dp),
+            RestoreHint(
+                bodyColor = colorScheme.onSurfaceVariantSummary,
+                codeBackground = Color(0x1F888888),
+                codeColor = colorScheme.onSurfaceVariantSummary,
             )
         }
     }

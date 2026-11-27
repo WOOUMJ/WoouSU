@@ -98,6 +98,11 @@
     <string name="home_click_to_learn_kernelsu">了解如何安装 WoouSU 以及如何开发模块</string>
     <string name="home_support_title">支持开发</string>
     <string name="home_support_content">WoouSU 将保持免费开源，向开发者捐赠以表示支持</string>
+    <string name="home_support_tencent">微信/QQ</string>
+    <string name="home_support_alipay">选择支付宝</string>
+    <string name="home_support_thanks">感谢您对WoouSU的支持</string>
+    <string name="home_support_tencent_hint">已复制「腾讯公益」，请在微信/QQ 小程序中搜索打开</string>
+    <string name="home_support_unavailable">未找到可用的应用</string>
     <string name="home_gki_warning">自 v3.0.0 起 GKI 工作模式将仅用于测试环境，我们不建议用于日常使用，也不再提供镜像文件</string>
     <string name="about_source_code"><![CDATA[在 %1$s 查看源码<br/>加入我们的 %2$s 频道]]></string>
     <string name="profile_default">默认</string>
@@ -320,6 +325,8 @@
     <string name="allow_shell_summary">总是允许 adb shell 调用 SU 命令，非必要请勿开启！</string>
     <string name="enable_adb">启动时强制启用 ADB 调试</string>
     <string name="enable_adb_summary">强制允许 USB 调试并取消 adb 认证，非必要请勿开启！</string>
+    <string name="install_enable_kpm">启用 KPM 支持</string>
+    <string name="install_enable_kpm_summary">使用 KernelPatch（kpimg）为内核打补丁，以便加载 KernelPatch 模块（.kpm）。仅支持 arm64。</string>
     <string name="advanced_options">高级选项</string>
     <string name="expand">展开</string>
     <string name="download_channel_name">模块下载</string>

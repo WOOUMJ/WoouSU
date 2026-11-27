@@ -188,6 +188,30 @@ struct ksu_dynamic_manager_cmd {
     __u8 hash[64]; /* Input/Output: manager certificate SHA-256 (lowercase hex, no NUL) */
 };
 
+/* KPM (KernelPatch Module) bridge */
+static const __u32 SUKISU_KPM_LOAD = 1;
+static const __u32 SUKISU_KPM_UNLOAD = 2;
+static const __u32 SUKISU_KPM_NUM = 3;
+static const __u32 SUKISU_KPM_LIST = 4;
+static const __u32 SUKISU_KPM_INFO = 5;
+static const __u32 SUKISU_KPM_CONTROL = 6;
+static const __u32 SUKISU_KPM_VERSION = 7;
+/* Optional event-aware load used for boot-stage modules. */
+static const __u32 SUKISU_KPM_LOAD_EVENT = 8;
+
+struct ksu_kpm_cmd {
+    __aligned_u64 control_code;
+    __aligned_u64 arg1;
+    __aligned_u64 arg2;
+    __aligned_u64 result_code;
+};
+
+/* arg2 payload for SUKISU_KPM_LOAD_EVENT. Both fields are user pointers. */
+struct ksu_kpm_load_event_cmd {
+    __aligned_u64 args;
+    __aligned_u64 event;
+};
+
 /* IOCTL command definitions */
 static const __u32 KSU_IOCTL_GRANT_ROOT = _IOC(_IOC_NONE, 'K', 1, 0);
 static const __u32 KSU_IOCTL_GET_INFO = _IOR('K', 2, struct ksu_get_info_cmd);
@@ -218,5 +242,6 @@ static const __u32 KSU_IOCTL_GET_SULOG_FD = _IOW('K', 20, struct ksu_get_sulog_f
 static const __u32 KSU_IOCTL_DISABLE_ESCAPE_TO_ROOT = _IO('K', 21);
 static const __u32 KSU_IOCTL_LOOKUP_SYMBOLS = _IOW('K', 22, struct ksu_lookup_symbols_cmd);
 static const __u32 KSU_IOCTL_DYNAMIC_MANAGER = _IOWR('K', 103, struct ksu_dynamic_manager_cmd);
+static const __u32 KSU_IOCTL_KPM = _IOWR('K', 104, struct ksu_kpm_cmd);
 
 #endif

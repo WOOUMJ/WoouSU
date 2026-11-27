@@ -280,6 +280,12 @@ internal fun InstallScreenMiuix(
                                     summary = stringResource(id = R.string.enable_adb_summary),
                                     onCheckedChange = actions.onSelectEnableAdb
                                 )
+                                CheckboxPreference(
+                                    title = stringResource(id = R.string.install_enable_kpm),
+                                    checked = uiState.enableKpm,
+                                    summary = stringResource(id = R.string.install_enable_kpm_summary),
+                                    onCheckedChange = actions.onSelectEnableKpm
+                                )
                             }
                         }
                     }

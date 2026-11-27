@@ -18,6 +18,12 @@
 
     <uses-sdk tools:overrideLibrary="top.yukonga.miuix.kmp.blur" />
 
+    <queries>
+        <package android:name="com.eg.android.AlipayGphone" />
+        <package android:name="com.tencent.mm" />
+        <package android:name="com.tencent.mobileqq" />
+    </queries>
+
     <application
         android:name=".WoouSUApplication"
         android:allowBackup="true"

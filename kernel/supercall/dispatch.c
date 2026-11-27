@@ -18,6 +18,7 @@
 #include "runtime/ksud_boot.h"
 #include "feature/kernel_umount.h"
 #include "feature/dynamic_manager.h"
+#include "feature/kpm.h"
 #include "manager/manager_identity.h"
 #include "selinux/selinux.h"
 #include "infra/file_wrapper.h"
@@ -70,6 +71,15 @@ static int do_get_info(void __user *arg)
 #endif
     cmd.features = KSU_FEATURE_MAX;
     cmd.uapi_version = KERNEL_SU_UAPI_VERSION;
+    /*
+     * Interface compatibility for third-party managers bound through the
+     * dynamic manager signature. SukiSU 4.2.x and earlier were built against
+     * UAPI 5; reporting 6 makes them believe their manager is outdated and
+     * hides most features. Report 5 so the handshake matches theirs.
+     */
+    if (ksu_is_dynamic_manager_enabled()) {
+        cmd.uapi_version = 5;
+    }
 
     if (copy_to_user(arg, &cmd, sizeof(cmd))) {
         pr_err("get_version: copy_to_user failed\n");
@@ -984,6 +994,12 @@ static const struct ksu_ioctl_cmd_map ksu_ioctl_handlers[] = {
         .cmd = KSU_IOCTL_DYNAMIC_MANAGER,
         .name = "DYNAMIC_MANAGER",
         .handler = do_dynamic_manager,
+        .perm_check = manager_or_root
+    },
+    {
+        .cmd = KSU_IOCTL_KPM,
+        .name = "KPM",
+        .handler = do_kpm,
         .perm_check = manager_or_root
     },
     {

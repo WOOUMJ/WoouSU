@@ -195,6 +195,14 @@ internal fun InstallScreenMaterial(
                         onCheckedChange = actions.onSelectEnableAdb,
                     )
                 }
+                item(visible = uiState.advancedOptionsShown) {
+                    SegmentedCheckboxItem(
+                        title = stringResource(id = R.string.install_enable_kpm),
+                        summary = stringResource(id = R.string.install_enable_kpm_summary),
+                        checked = uiState.enableKpm,
+                        onCheckedChange = actions.onSelectEnableKpm,
+                    )
+                }
             }
             Button(
                 modifier = Modifier
