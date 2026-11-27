@@ -347,6 +347,14 @@
     <string name="enable_adb_summary">Force enable USB debugging and disable adb authentication. Do not enable this unless absolutely necessary.</string>
     <string name="install_enable_kpm">Enable KPM support</string>
     <string name="install_enable_kpm_summary">Patch the kernel with KernelPatch (kpimg) so KernelPatch modules (.kpm) can be loaded. Arm64 only.</string>
+    <string name="install_kpm_target">KPM patch target</string>
+    <string name="install_kpm_follow">Follow the patched kernel</string>
+    <string name="install_kpm_follow_summary">Apply the KPM patch to the kernel inside the image being patched.</string>
+    <string name="install_kpm_separate">Use a separate boot image</string>
+    <string name="install_kpm_separate_summary">Only patch the selected boot image with KPM; the image being patched stays KPM-free.</string>
+    <string name="install_kpm_select_boot">Select boot image</string>
+    <string name="install_kpm_boot_selected">Selected: %1$s</string>
+    <string name="install_kpm_boot_required">Please select a boot image to apply the KPM patch to.</string>
     <string name="advanced_options">Advanced Options</string>
     <string name="expand">Expand</string>
     <string name="download_channel_name">Module Downloads</string>

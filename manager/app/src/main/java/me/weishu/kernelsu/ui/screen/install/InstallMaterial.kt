@@ -203,6 +203,56 @@ internal fun InstallScreenMaterial(
                         onCheckedChange = actions.onSelectEnableKpm,
                     )
                 }
+                item(visible = uiState.advancedOptionsShown && uiState.enableKpm) {
+                    SegmentedRadioItem(
+                        title = stringResource(id = R.string.install_kpm_follow),
+                        summary = stringResource(id = R.string.install_kpm_follow_summary),
+                        selected = uiState.kpmTargetMode == KpmTargetMode.FollowPatchedKernel,
+                        onClick = { actions.onSelectKpmTargetMode(KpmTargetMode.FollowPatchedKernel) },
+                    )
+                }
+                item(visible = uiState.advancedOptionsShown && uiState.enableKpm) {
+                    SegmentedRadioItem(
+                        title = stringResource(id = R.string.install_kpm_separate),
+                        summary = stringResource(id = R.string.install_kpm_separate_summary),
+                        selected = uiState.kpmTargetMode == KpmTargetMode.SeparateBoot,
+                        onClick = { actions.onSelectKpmTargetMode(KpmTargetMode.SeparateBoot) },
+                    )
+                }
+                item(
+                    visible = uiState.advancedOptionsShown && uiState.enableKpm &&
+                        uiState.kpmTargetMode == KpmTargetMode.SeparateBoot
+                ) {
+                    SegmentedListItem(
+                        leadingContent = {
+                            Icon(Icons.AutoMirrored.Filled.DriveFileMove, null)
+                        },
+                        headlineContent = { Text(stringResource(R.string.install_kpm_select_boot)) },
+                        supportingContent = {
+                            uiState.kpmBootUri?.let {
+                                Text(
+                                    stringResource(
+                                        R.string.install_kpm_boot_selected,
+                                        it.lastPathSegment ?: "(file)"
+                                    )
+                                )
+                            }
+                        },
+                        trailingContent = {
+                            if (uiState.kpmBootUri != null) {
+                                IconButton(onClick = actions.onClearKpmBoot) {
+                                    Icon(
+                                        Icons.Filled.Close,
+                                        contentDescription = stringResource(android.R.string.cancel)
+                                    )
+                                }
+                            } else {
+                                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
+                            }
+                        },
+                        onClick = actions.onSelectKpmBoot
+                    )
+                }
             }
             Button(
                 modifier = Modifier

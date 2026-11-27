@@ -327,6 +327,14 @@
     <string name="enable_adb_summary">强制允许 USB 调试并取消 adb 认证，非必要请勿开启！</string>
     <string name="install_enable_kpm">启用 KPM 支持</string>
     <string name="install_enable_kpm_summary">使用 KernelPatch（kpimg）为内核打补丁，以便加载 KernelPatch 模块（.kpm）。仅支持 arm64。</string>
+    <string name="install_kpm_target">KPM 补丁目标</string>
+    <string name="install_kpm_follow">跟随修补内核</string>
+    <string name="install_kpm_follow_summary">对正在修补的镜像中的内核打 KPM 补丁。</string>
+    <string name="install_kpm_separate">另行选择 boot 文件</string>
+    <string name="install_kpm_separate_summary">只给另选的 boot 文件打 KPM 补丁，正在修补的镜像不打补丁。</string>
+    <string name="install_kpm_select_boot">选择 boot 文件</string>
+    <string name="install_kpm_boot_selected">已选择：%1$s</string>
+    <string name="install_kpm_boot_required">请先选择用于打 KPM 补丁的 boot 文件。</string>
     <string name="advanced_options">高级选项</string>
     <string name="expand">展开</string>
     <string name="download_channel_name">模块下载</string>

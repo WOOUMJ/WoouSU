@@ -513,6 +513,11 @@ pub struct BootPatchArgs {
     /// loaded at runtime. arm64 only.
     #[arg(long = "enable-kpm", default_value = "false")]
     enable_kpm: bool,
+
+    /// Only apply the KernelPatch (kpimg) kernel patch to the given boot image
+    /// and write the result to --out, without installing WoouSU or flashing.
+    #[arg(long = "kpm-only", default_value = "false")]
+    kpm_only: bool,
 }
 
 /// WoouSU module params, stored in ramdisk `/ksu_config` (boot-patch) or the
@@ -697,7 +702,60 @@ fn kpm_patch_kernel(kernel: &[u8]) -> Result<Vec<u8>> {
     result
 }
 
+#[cfg(all(target_os = "android", target_arch = "aarch64"))]
+fn patch_kpm_only(args: BootPatchArgs) -> Result<()> {
+    let BootPatchArgs {
+        boot: image,
+        out,
+        out_name,
+        ..
+    } = args;
+
+    let image = image.context("--kpm-only requires -b/--boot <boot image>")?;
+    ensure!(image.exists(), "boot image not found");
+
+    println!("- Unpacking boot image");
+    let boot_image_data = map_file(&image)?;
+    let boot_image = BootImage::parse(&boot_image_data)?;
+    enforce_bootimage_version(&boot_image)?;
+    let mut patcher = BootImagePatchOption::new(&boot_image);
+
+    let block = boot_image
+        .get_blocks()
+        .get_kernel()
+        .context("this boot image contains no kernel, cannot apply the KPM patch")?;
+    let mut raw_kernel = Vec::new();
+    block.dump(&mut raw_kernel, false)?;
+    println!("- Patching kernel with KernelPatch (KPM)");
+    let patched = kpm_patch_kernel(&raw_kernel)?;
+    println!("- KPM patch applied ({} bytes)", patched.len());
+    patcher.replace_kernel(Box::new(Cursor::new(patched)), false);
+
+    let mut new_boot = Cursor::new(Vec::new());
+    patcher.patch(&mut new_boot)?;
+    let new_boot = new_boot.into_inner();
+
+    let output_dir = out.unwrap_or(std::env::current_dir()?);
+    std::fs::create_dir_all(&output_dir).ok();
+    let name = out_name.unwrap_or_else(|| {
+        let stem = image.file_stem().and_then(|s| s.to_str()).unwrap_or("boot");
+        format!("{stem}_kpm.img")
+    });
+    let output_image = output_dir.join(name);
+    std::fs::write(&output_image, &new_boot).context("write KPM boot image failed")?;
+    println!("- KPM patched boot image: {}", output_image.display());
+    Ok(())
+}
+
+#[cfg(not(all(target_os = "android", target_arch = "aarch64")))]
+fn patch_kpm_only(_args: BootPatchArgs) -> Result<()> {
+    bail!("KPM (KernelPatch) kernel patching is only available on arm64 Android")
+}
+
 pub fn patch(args: BootPatchArgs) -> Result<()> {
+    if args.kpm_only {
+        return patch_kpm_only(args);
+    }
     let inner = move || {
         let BootPatchArgs {
             boot: image,
@@ -724,6 +782,7 @@ pub fn patch(args: BootPatchArgs) -> Result<()> {
             arch,
             ramdisk,
             enable_kpm,
+            kpm_only: _,
         } = args;
 
         println!(include_str!("banner"));

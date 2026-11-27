@@ -2,6 +2,7 @@ package me.weishu.kernelsu.ui.screen.install
 
 import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.SnackbarHostState
@@ -67,6 +68,8 @@ fun InstallScreen() {
     var enableAdb by rememberSaveable { mutableStateOf(false) }
     var forceBackup by rememberSaveable { mutableStateOf(false) }
     var enableKpm by rememberSaveable { mutableStateOf(false) }
+    var kpmTargetMode by rememberSaveable { mutableStateOf(KpmTargetMode.FollowPatchedKernel) }
+    var kpmBootUri by rememberSaveable { mutableStateOf<Uri?>(null) }
 
     val currentKmi by produceState(initialValue = "") { value = getCurrentKmi() }
     val partitions by produceState(initialValue = emptyList()) { value = getAvailablePartitions() }
@@ -123,6 +126,9 @@ fun InstallScreen() {
 
     val onInstall = {
         installMethod?.let { method ->
+            val patchKpmInPlace = enableKpm && kpmTargetMode == KpmTargetMode.FollowPatchedKernel
+            val separateKpmBoot =
+                if (enableKpm && kpmTargetMode == KpmTargetMode.SeparateBoot) kpmBootUri else null
             navigator.push(
                 Route.Flash(
                     when (method) {
@@ -133,7 +139,8 @@ fun InstallScreen() {
                             allowShell = allowShell,
                             enableAdb = enableAdb,
                             backup = forceBackup,
-                            kpm = enableKpm
+                            kpm = patchKpmInPlace,
+                            kpmBoot = separateKpmBoot
                         )
                         else -> FlashIt.FlashBoot(
                             boot = if (method is InstallMethod.SelectFile) method.uri else null,
@@ -143,7 +150,8 @@ fun InstallScreen() {
                             allowShell = allowShell,
                             enableAdb = enableAdb,
                             backup = method is InstallMethod.SelectFile && forceBackup,
-                            kpm = enableKpm
+                            kpm = patchKpmInPlace,
+                            kpmBoot = separateKpmBoot
                         )
                     }
                 )
@@ -220,6 +228,13 @@ fun InstallScreen() {
             }
         }
     }
+    val selectKpmBootLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) {
+        if (it.resultCode == Activity.RESULT_OK) {
+            it.data?.data?.let { uri -> kpmBootUri = uri }
+        }
+    }
 
     val state = InstallUiState(
         installMethod = installMethod,
@@ -240,6 +255,8 @@ fun InstallScreen() {
         forceBackup = forceBackup,
         canForceBackup = installMethod is InstallMethod.SelectFile,
         enableKpm = enableKpm,
+        kpmTargetMode = kpmTargetMode,
+        kpmBootUri = kpmBootUri,
     )
     val actions = InstallScreenActions(
         onBack = dropUnlessResumed { navigator.pop() },
@@ -272,7 +289,9 @@ fun InstallScreen() {
                 is InstallMethod.SelectFile -> true
                 else -> isKmiUnknown
             }
-            if (!isLkmSelected && isKmiUnresolved) {
+            if (enableKpm && kpmTargetMode == KpmTargetMode.SeparateBoot && kpmBootUri == null) {
+                showMessage(resources.getString(R.string.install_kpm_boot_required))
+            } else if (!isLkmSelected && isKmiUnresolved) {
                 showChooseKmiDialog.value = true
             } else {
                 onInstall()
@@ -292,6 +311,15 @@ fun InstallScreen() {
         },
         onSelectEnableKpm = {
             enableKpm = it
+        },
+        onSelectKpmTargetMode = {
+            kpmTargetMode = it
+        },
+        onSelectKpmBoot = {
+            selectKpmBootLauncher.launch(Intent(Intent.ACTION_GET_CONTENT).apply { type = "application/octet-stream" })
+        },
+        onClearKpmBoot = {
+            kpmBootUri = null
         }
     )
 

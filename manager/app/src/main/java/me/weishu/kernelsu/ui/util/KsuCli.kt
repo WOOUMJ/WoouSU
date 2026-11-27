@@ -379,6 +379,7 @@ fun installBoot(
     enableAdb: Boolean,
     forceBackup: Boolean,
     enableKpm: Boolean,
+    kpmBoot: Uri?,
     onStdout: (String) -> Unit,
     onStderr: (String) -> Unit,
 ): FlashResult {
@@ -432,6 +433,13 @@ fun installBoot(
     bootFile?.delete()
     lkmFile?.delete()
 
+    // "Separate boot" mode: the main image above was patched without KPM; the
+    // chosen boot image is patched with KPM only and written to Downloads.
+    if (kpmBoot != null && result.isSuccess) {
+        val kpmResult = patchKpmBootFile(kpmBoot, onStdout, onStderr)
+        if (!kpmResult.isSuccess) return kpmResult
+    }
+
     // if boot uri is empty, it is direct install, when success, we should show reboot button
     val showReboot = bootUri == null && result.isSuccess // we create a temporary val here, to avoid calc showReboot double
     if (showReboot) { // because we decide do not update ksud when startActivity
@@ -448,6 +456,7 @@ fun downloadBoot(
     enableAdb: Boolean,
     forceBackup: Boolean,
     enableKpm: Boolean,
+    kpmBoot: Uri?,
     onStdout: (String) -> Unit,
     onStderr: (String) -> Unit,
 ): FlashResult {
@@ -533,7 +542,35 @@ fun downloadBoot(
     val result = Shell.getShell().newJob().add(cmd).to(stdoutCallback, stderrCallback).exec()
     lkmFile?.delete()
     bootFile.delete()
+    if (kpmBoot != null && result.isSuccess) {
+        val kpmResult = patchKpmBootFile(kpmBoot, onStdout, onStderr)
+        if (!kpmResult.isSuccess) return kpmResult
+    }
     return FlashResult(result, false)
+}
+
+/**
+ * Apply the KernelPatch (KPM) kernel patch to a standalone boot image and write
+ * the result to the Downloads directory. The WoouSU image being patched in the
+ * main flow is left untouched.
+ */
+private fun patchKpmBootFile(
+    uri: Uri,
+    onStdout: (String) -> Unit,
+    onStderr: (String) -> Unit,
+): FlashResult {
+    val bootFile = with(ksuApp.contentResolver.openInputStream(uri)) {
+        val file = File(ksuApp.cacheDir, "kpm-boot.img")
+        file.outputStream().use { output -> this?.copyTo(output) }
+        file
+    }
+    val downloadsDir =
+        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+    val cmd = "boot-patch --kpm-only -b ${bootFile.absolutePath} -o $downloadsDir" +
+        " --out-name WoouSU_KPM_boot.img"
+    val result = flashWithIO("${getKsuDaemonPath()} $cmd", onStdout, onStderr)
+    bootFile.delete()
+    return result
 }
 
 suspend fun probeRemoteBootPartitions(url: String): ProbeResult = withContext(Dispatchers.IO) {

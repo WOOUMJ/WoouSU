@@ -79,6 +79,7 @@ sealed class FlashIt : Parcelable {
         val enableAdb: Boolean = false,
         val backup: Boolean = false,
         val kpm: Boolean = false,
+        val kpmBoot: Uri? = null,
     ) : FlashIt()
 
     @Parcelize
@@ -90,6 +91,7 @@ sealed class FlashIt : Parcelable {
         val enableAdb: Boolean = false,
         val backup: Boolean = false,
         val kpm: Boolean = false,
+        val kpmBoot: Uri? = null,
     ) : FlashIt()
 
     @Parcelize
@@ -134,6 +136,7 @@ fun flashIt(
             flashIt.enableAdb,
             flashIt.backup,
             flashIt.kpm,
+            flashIt.kpmBoot,
             onStdout,
             onStderr
         )
@@ -146,6 +149,7 @@ fun flashIt(
             flashIt.enableAdb,
             flashIt.backup,
             flashIt.kpm,
+            flashIt.kpmBoot,
             onStdout,
             onStderr
         )

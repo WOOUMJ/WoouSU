@@ -286,7 +286,76 @@ internal fun InstallScreenMiuix(
                                     summary = stringResource(id = R.string.install_enable_kpm_summary),
                                     onCheckedChange = actions.onSelectEnableKpm
                                 )
+                                if (uiState.enableKpm) {
+                                    OverlayDropdownPreference(
+                                        items = listOf(
+                                            stringResource(id = R.string.install_kpm_follow),
+                                            stringResource(id = R.string.install_kpm_separate)
+                                        ),
+                                        selectedIndex = uiState.kpmTargetMode.ordinal,
+                                        title = stringResource(id = R.string.install_kpm_target),
+                                        onSelectedIndexChange = {
+                                            actions.onSelectKpmTargetMode(KpmTargetMode.values()[it])
+                                        },
+                                        startAction = {
+                                            Icon(
+                                                MiuixIcons.ConvertFile,
+                                                tint = colorScheme.onSurface,
+                                                modifier = Modifier.padding(end = 12.dp),
+                                                contentDescription = null
+                                            )
+                                        }
+                                    )
+                                }
                             }
+                        }
+                    }
+                    if (uiState.advancedOptionsShown && uiState.enableKpm &&
+                        uiState.kpmTargetMode == KpmTargetMode.SeparateBoot
+                    ) {
+                        Card(
+                            colors = managerCardColors(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 12.dp),
+                        ) {
+                            BasicComponent(
+                                title = stringResource(id = R.string.install_kpm_select_boot),
+                                summary = uiState.kpmBootUri?.let {
+                                    stringResource(
+                                        id = R.string.install_kpm_boot_selected,
+                                        it.lastPathSegment ?: "(file)"
+                                    )
+                                },
+                                onClick = actions.onSelectKpmBoot,
+                                startAction = {
+                                    Icon(
+                                        MiuixIcons.MoveFile,
+                                        tint = colorScheme.onSurface,
+                                        modifier = Modifier.padding(end = 12.dp),
+                                        contentDescription = null
+                                    )
+                                },
+                                endActions = {
+                                    if (uiState.kpmBootUri != null) {
+                                        IconButton(onClick = actions.onClearKpmBoot) {
+                                            Icon(
+                                                MiuixIcons.Close,
+                                                modifier = Modifier.size(16.dp),
+                                                contentDescription = stringResource(android.R.string.cancel),
+                                                tint = colorScheme.onSurfaceVariantActions
+                                            )
+                                        }
+                                    } else {
+                                        Icon(
+                                            modifier = Modifier.size(width = 10.dp, height = 16.dp),
+                                            imageVector = MiuixIcons.Basic.ArrowRight,
+                                            contentDescription = null,
+                                            tint = colorScheme.onSurfaceVariantActions,
+                                        )
+                                    }
+                                }
+                            )
                         }
                     }
                     TextButton(

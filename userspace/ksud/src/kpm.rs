@@ -30,8 +30,8 @@ fn kpm_io(control_code: u32, arg1: u64, arg2: u64) -> Result<i32> {
         arg2,
         result_code: &raw mut ret as u64,
     };
-    let result = kpm_ioctl(&raw mut cmd)
-        .with_context(|| format!("KPM ioctl {control_code} failed"))?;
+    let result =
+        kpm_ioctl(&raw mut cmd).with_context(|| format!("KPM ioctl {control_code} failed"))?;
     if result < 0 {
         bail!(
             "KPM ioctl {control_code} failed: {}",
@@ -93,7 +93,10 @@ where
 {
     let path = path.as_ref();
     let ret = load_module_result(path, args, None)?;
-    check_result(&format!("Failed to load KPM module {}", path.display()), ret)
+    check_result(
+        &format!("Failed to load KPM module {}", path.display()),
+        ret,
+    )
 }
 
 fn load_module_at_event<P>(path: P, args: Option<&str>, event: &str) -> Result<()>
@@ -199,8 +202,8 @@ fn check_version() -> Result<String> {
 fn ensure_dir() -> Result<()> {
     let dir = Path::new(KPM_DIR);
     fs::create_dir_all(dir).with_context(|| format!("Failed to create {}", dir.display()))?;
-    let metadata =
-        fs::symlink_metadata(dir).with_context(|| format!("Failed to inspect {}", dir.display()))?;
+    let metadata = fs::symlink_metadata(dir)
+        .with_context(|| format!("Failed to inspect {}", dir.display()))?;
     if !metadata.is_dir() {
         bail!("KPM path {} is not a directory", dir.display());
     }
